@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="F:\CityOffers\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.1.1\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="c95ba8152923e4872e86a82cfcba9a51c0214328">
+        <dex dex="F:\CityOffers\app\build\intermediates\pre-dexed\release\classes-7fa6ad89f659279eb129f0e340ff4c440bdae835.jar" />
+    </item>
+    <item
+        jar="F:\CityOffers\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.1.1\jars\libs\internal_impl-22.1.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="9e070ad32b2700b0343e8e0cccc437733d91ba3a">
+        <dex dex="F:\CityOffers\app\build\intermediates\pre-dexed\release\internal_impl-22.1.1-c6bc85476759310c4f3f50fbf1a1e7d1096d7c52.jar" />
+    </item>
+    <item
+        jar="F:\CityOffers\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\22.1.1\jars\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="a3ff3c506644c820eb2bdf06e8339f72be578551">
+        <dex dex="F:\CityOffers\app\build\intermediates\pre-dexed\release\classes-2318fd85e6edc5cfda961c75881f61a2154cbf67.jar" />
+    </item>
+    <item
+        jar="D:\Program Files\Android1\android-sdk\extras\android\m2repository\com\android\support\support-annotations\22.1.1\support-annotations-22.1.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="01d051a6bfb1218b1db2d3a5af0480ac2c25c42a">
+        <dex dex="F:\CityOffers\app\build\intermediates\pre-dexed\release\support-annotations-22.1.1-29940ee88e2ba0a6f17d10c1a7589b315749e70f.jar" />
+    </item>
+
+</items>

@@ -1,0 +1,12 @@
+{
+  "name": "CityOffers",
+  "app_id": "828c0033",
+  "gulpStartupTasks": [
+    "sass",
+    "watch"
+  ],
+  "watchPatterns": [
+    "www/**/*",
+    "!www/lib/**/*"
+  ]
+}
