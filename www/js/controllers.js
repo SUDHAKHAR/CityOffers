@@ -19,8 +19,62 @@ angular.module('starter.controllers',[])
     $scope.modal.hide();
   };
 	
-	$scope.addoffer_new=function($event){
-	alert("This is in Map Control registermerchant");
+	$scope.addoffer_new=function($event,$addOffer){
+		$http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+	$scope.addOffer = {};
+
+	   $scope.loginData = {};
+	 alert("This is in Map Control addoffer : "+$addOffer.shopname);
+	/*This is for adding offers to database*/
+	 var now = new Date();
+  
+        var headers = {
+            'Access-Control-Allow-Origin' : '*',
+            'Access-Control-Allow-Methods' : 'POST, GET, OPTIONS, PUT',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+		
+		
+		return $http({
+            method: "POST",
+            headers: headers,
+      url: 'http://104.155.192.54:8080/api/addoffers',
+            data: {
+        "loginid": $addOffer.userid,
+        "offerarea": $addOffer.area,
+		"offershopname":$addOffer.shopname,
+		"offercategory":$addOffer.shopcat,
+		"offerimage":$addOffer.image,
+		"offerdetails":$addOffer.offerdetails,
+		"offerperiod":$addOffer.offerperiod,
+		"offeremail":$addOffer.email,
+		"offercontact1":$addOffer.contact1,
+		"offercontact2":$addOffer.contact2,
+		"offerdate":now
+		
+      }
+    }).success(function(data) {
+                console.log("Recoded sucessfully in add offer success!");
+				  alert("Offer Added Sucessfully."+data);
+        $scope.logins.push(data.data);
+		  $scope.loginusername=$scope.loginData.username;
+		   $scope.isLogin=true;
+	 $scope.modal.hide();
+     console.log(data);
+    }).error(function(data, status, headers, config) {
+                console.log("Auth.signin.error!")
+				alert(status);
+        console.log(data);
+        console.log(status);
+        console.log(headers);
+        console.log(config);
+    });
+	
+	
+	
+	
+	
 	
 	
 	};
@@ -156,8 +210,7 @@ var t5=t3[1].short_name;
 		  $scope.loginusername=$scope.loginData.username;
 		   $scope.isLogin=true;
 	 $scope.modal.hide();
-
-                console.log(data);
+     console.log(data);
     }).error(function(data, status, headers, config) {
                 console.log("Auth.signin.error!")
 				alert(status);
@@ -214,8 +267,7 @@ var t5=t3[1].short_name;
  
 .controller('AppCtrl', function($scope, $ionicModal, $timeout,loginsFactory, $ionicLoading, $http,Post) {
 	
-
-
+	
   // Form data for the login modal
   $scope.loginData = {};
 $scope.logins = [];
@@ -253,21 +305,7 @@ $scope.logins = [];
   // Perform the login action when the user submits the login form
   $scope.save = function($event) {
 	  
-	/*   var options = {
-            replaceLineBreaks: false, // true to replace \n by a new line, false by default
-            android: {
-                intent: 'INTENT'  // send SMS with the native android SMS messaging
-                //intent: '' // send SMS without open any other app
-            }
-			};
-    $cordovaSms.send('+919618188535', 'This is a Sample sms', options)
-      .then(function() {
-		  alert("This is sending smms");
-        // Success! SMS was sent
-      }, function(error) {
-        // An error occurred
-      });
-	  */
+	
 	   
 	 console.log('Doing login', $scope.loginData);
 	// alert($scope.loginData.password);
@@ -284,8 +322,8 @@ $scope.logins = [];
 
 //	var lat=window.localStorage['pos.coords.latitude.local'] ;
 //	var lon=window.localStorage['pos.coords.longitude.local'] ;
-	var area='pdt';
-	var city='vskp' ;
+	var area=window.localStorage['place.area.local'] ;
+	var city=window.localStorage['place.city.local'] ;
 	console.log("This is save in appctrl");
 	 var now = new Date();
 
@@ -309,7 +347,8 @@ $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
       "login": t1,
         "isAdmin": false,
 		"password":t2,
-		
+		"area":area,
+		"city":city,
 		"date":''+now
       }
     }).success(function(data) {
@@ -321,7 +360,7 @@ $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 		 $scope.modal.hide();
 	
 	console.log(data);
-	
+		
               
     }).error(function(data, status, headers, config) {
                 console.log("Auth.signin.error!"+data)

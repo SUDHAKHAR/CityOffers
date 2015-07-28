@@ -41,7 +41,11 @@
       "locator": "https://github.com/wymsee/cordova-HTTP.git",
       "id": "com.synconset.cordovaHTTP"
     },
-    "plugin.http.request"
+    "plugin.http.request",
+    {
+      "locator": "https://git-wip-us.apache.org/repos/asf/cordova-plugin-geolocation.git",
+      "id": "cordova-plugin-geolocation"
+    }
   ],
   "cordovaPlatforms": []
 }

@@ -52,7 +52,12 @@ display: block;
 .my-menu .list {
   background-color: transparent;
 }
-#map { height: 200px; width:'100%'}
+.scroll {
+
+    height: 150%;
+}
+ 
+#map { display: block;height: 40%;  margin-left: 50px; width: 75%;}
 map {
   display: block;
   width: 75%;

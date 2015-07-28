@@ -14,6 +14,11 @@
 <allow-intent href="https://*/*"/>
 <allow-intent href="*" />
    <allow-navigation href="*" />
+   <allow-navigation href="http://*/*" />
+   
+   <allow-intent href="geo:*" />
+   <allow-intent href="*" />
+   
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
   <preference name="DisallowOverscroll" value="true"/>

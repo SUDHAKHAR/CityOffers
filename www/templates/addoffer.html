@@ -1,27 +1,25 @@
 <ion-view>
   <ion-header-bar>
-    <h1 class="title">Add offer</h1>
-    <div class="buttons">
-      <button class="button button-clear" ng-click="closeregister()">Close</button>
-    </div>
+    
   </ion-header-bar>
-   <ion-content scroll="true">
-	<form ng-click="register()"">
+   <ion-content >
+	<form ng-click="register()">
 	<button class="button button-clear button-positive" style="float: right;" ng-hide="isLogin" type="submit">
   Register Merchant
 </button>
 	
 	</form>
 	<br><br><br>
-  <div id="addoffer" class="list" style="left: 5%; top: 2px; width: 90%; text-align:left">
-  <form ng-submit="addoffer_new($event)">
+	 <form ng-submit="addoffer_new($event,addOffer)">
+  <div class="list">
+ 
 			 <label class="item item-input">
           <span class="input-label">UserId</span>
-          <input type="text" id="loginData.userid" value="{{loginData.username}}" ng-model="loginData.userid">
+          <input type="text" id="ouserid" value="{{loginData.username}}" ng-model="addOffer.userid">
         </label>
 		<label class="item item-input item-select">
-     <span class="input-label">Shop Name</span>
-    <select>
+     <span class="input-label">Shop Area</span>
+    <select ng-model="addOffer.area">
       <option>Visakhapatnam</option>
       <option selected>NAD</option>
       <option>Pendurthy</option>
@@ -29,41 +27,42 @@
   </label>	 
 		 <label class="item item-input">
           <span class="input-label">Shop Name</span>
-          <input type="text" id="addOffer.shopname" ng-model="addOffer.shopname"  >
+          <input type="text" id="oshopname" ng-model="addOffer.shopname"  >
         </label>
    <label class="item item-input">
           <span class="input-label">Category</span>
-          <input type="text" id="addOffer.shopcat" ng-model="addOffer.shopcat" >
+          <input type="text" id="oshopcat" ng-model="addOffer.shopcat" >
         </label>
 		 <label class="item item-input">
           <span class="input-label">Upload Offer Image</span>
-          <input type="text" id="addOffer.image"   ng-model="addOffer.image">
+          <input type="text" id="oimage"   ng-model="addOffer.image">
         </label>
 		 <label class="item item-input">
           <span class="input-label">Offer Details</span>
-          <input type="text" id="addOffer.offerdetails"  ng-model="addOffer.offerdetails">
+          <input type="text" id="oofferdetails"  ng-model="addOffer.offerdetails">
         </label>
 		 <label class="item item-input">
           <span class="input-label">Offer Period</span>
-          <input type="text" id="addOffer.offerperiod" ng-model="addOffer.offerperiod">
+          <input type="text" id="oofferperiod" ng-model="addOffer.offerperiod">
         </label>
 		<label class="item item-input">
           <span class="input-label">E-mail</span>
-          <input type="text" id="addOffer.email" ng-model="addOffer.email">
+          <input type="text" id="oemail" ng-model="addOffer.email">
         </label>
 		<label class="item item-input">
           <span class="input-label">Contact No.</span>
-          <input type="text" id="addOffer.contact1" ng-model="addOffer.contact1"  >
+          <input type="text" id="ocontact1" ng-model="addOffer.contact1"  >
         </label>
 		<label class="item item-input">
           <span class="input-label">Alternate No.</span>
-          <input type="text" id="addOffer.contact2" 	ng-model="addOffer.contact2">
+          <input type="text" id="ocontact2" 	ng-model="addOffer.contact2">
         </label>
        <label class="item item-input">
           <button class="button button-block button-positive" type="submit">Add Offer</button>
 		</label>
-  </form>
+  
    </div>
+   </form>
 	<div>Select Area</div>
 	<!--
       <map on-create="mapCreated(map)"  ></map>

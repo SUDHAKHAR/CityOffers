@@ -6,6 +6,7 @@
   var mongojs = require('mongojs');
   var db =mongojs('mongodb://sudhakar:umasan57@ds047792.mongolab.com:47792/cityoffers', ['logins']); 
  var db1 =mongojs('mongodb://sudhakar:umasan57@ds047792.mongolab.com:47792/cityoffers', ['merchantlogins']); 
+ var db2 =mongojs('mongodb://sudhakar:umasan57@ds047792.mongolab.com:47792/cityoffers', ['addoffer']); 
  
   
  
@@ -18,6 +19,8 @@
       res.json(data);
     });
   });
+  
+  
  router.get('/api/merchantlogins', function(req, res) {
 	  
     db1.merchantlogins.find(function(err, data) {
@@ -25,7 +28,12 @@
     });
   });
  
- 
+  router.get('/api/addoffers', function(req, res) {
+	  
+    db2.addoffers.find(function(err, data) {
+      res.json(data);
+    });
+  });
   router.post('/api/logins', function(req, res) {
 	  
 	  console.log("This is index.js is index.js save");
@@ -41,6 +49,15 @@
     db1.merchantlogins.insert(req.body, function(err, data) {
       res.json(data);
 	  console.log("This is in merchant logins index.js server");
+    });
+ 
+  });
+   router.post('/api/addoffers', function(req, res) {
+	  
+	  console.log("This is index.js is in addoffers server save");
+    db2.addoffers.insert(req.body, function(err, data) {
+      res.json(data);
+	  console.log("This is in addoffers server server");
     });
  
   });

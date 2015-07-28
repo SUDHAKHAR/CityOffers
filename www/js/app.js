@@ -63,6 +63,30 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
   return _loginService;
 })
 
+.factory('addOffer', function($http) {
+  var urlBase = 'http://104.155.192.54:8080/api/addoffers';
+  var _addofferService = {};
+ 
+  _loginService.getLogins = function() {
+    return $http.get(urlBase);
+  };
+ 
+  _loginService.saveLogin = function(login) {
+	  console.log("This is factory is addoffers app.js save");
+    return $http.post(urlBase,login);
+  };
+ 
+  _loginService.updateLogin = function(login) {
+    return $http.put(urlBase, login);
+  };
+ 
+  _loginService.deleteLogin = function(id) {
+    return $http.delete(urlBase + '/' + id);
+  };
+ 
+  return _loginService;
+})
+
 
 
 
