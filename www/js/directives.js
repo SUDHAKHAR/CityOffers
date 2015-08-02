@@ -10,7 +10,7 @@ angular.module('starter.directives', [])
     link: function ($scope, $element, $attr) {
       function initialize() {
         var mapOptions = {
-          center: new google.maps.LatLng(27.8333,33.2000),
+          center: new google.maps.LatLng(26.8333,63.2000),
           zoom: 16,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };
@@ -34,7 +34,9 @@ angular.module('starter.directives', [])
   geocoder.geocode({'latLng': latlng}, function(results, status) {
     if (status == google.maps.GeocoderStatus.OK) {
       if (results[1]) {
-       
+		  var kk=results[1].formatted_address;
+		 var str1= kk.split(', ',10);
+        console.log("Recoded sucessfully in add offer success!: "+results[1].formatted_address+" Address Area:"+str1[str1.length-4]+" Address City:"+str1[str1.length-3]);
 	   var input1 = results[1].formatted_address;
 var t3= results[1].address_components;
 var t5=t3[1].short_name;
@@ -49,8 +51,8 @@ var t5=t3[1].short_name;
 	   
 	  infowindow.setContent('<div><strong> Area: ' + t1 + '<br> City: '+t5+'</strong><br>' +'Place ID: ' + results[1].place_id + '<br>' +results[1].formatted_address+'');
        infowindow.open(map, myLocation);
-	    window.localStorage['place.area.local'] = ''+t1;
-		  window.localStorage['place.city.local'] = ''+t5;
+	    window.localStorage['place.area.local'] =str1[str1.length-4];
+		  window.localStorage['place.city.local'] = str1[str1.length-3];
 		   window.localStorage['area.register.local'] = ''+t1;
 		  window.localStorage['city.register.local'] = ''+t5;
 		  $scope.arearegister=t1;

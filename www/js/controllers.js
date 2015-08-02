@@ -1,9 +1,63 @@
 angular.module('starter.controllers',[])
 
 
-.controller('MapCtrl', function($scope, $ionicModal, $ionicLoading,merchantRegisterFactory, $http) {
+.controller('MapCtrl', function($scope, $ionicModal,$ionicPlatform, $ionicLoading,merchantRegisterFactory, $http, Camera, $fileFactory) {
 	
 	
+	/*This is for sending sms*/
+	$scope.sendsms=function($event) {
+		 console.log("This is in sms 1");
+		var options = {
+            replaceLineBreaks: false, // true to replace \n by a new line, false by default
+            android: {
+                intent: 'INTENT'  // send SMS with the native android SMS messaging
+                //intent: '' // send SMS without open any other app
+            }
+        };
+		
+	 document.addEventListener("deviceready", function () {
+ console.log("This is in sms 2");
+    $cordovaSms
+      .send('9618188535', 'This is Test', options)
+      .then(function() {
+		   console.log("This is in sms 3");
+        // Success! SMS was sent
+      }, function(error) {
+        // An error occurred
+      });
+
+  });
+	};
+	/*This below code is for file browser*/
+	var fs = new $fileFactory();
+	
+ $scope.browse=function($event) {
+	  console.log("This is in browse.1");
+        fs.getEntriesAtRoot().then(function(result) {
+			 console.log("This is in browse.2");
+            $scope.files = result;
+        }, function(error) {
+            console.error(error);
+        });
+
+        $scope.getContents = function(path) {
+			 console.log("This is in browse.3");
+            fs.getEntries(path).then(function(result) {
+                $scope.files = result;
+                $scope.files.unshift({name: "[parent]"});
+                fs.getParentDirectory(path).then(function(result) {
+                    result.name = "[parent]";
+                    $scope.files[0] = result;
+                });
+            });
+        }
+    };
+
+
+
+	
+	
+			
 	// THIS IS IN ADD OFFER FOR NEW REGISRTER
 	$ionicModal.fromTemplateUrl('templates/search.html', {
     scope: $scope
@@ -11,6 +65,62 @@ angular.module('starter.controllers',[])
     $scope.modal = modal;
   });
 
+  $scope.getPhoto = function() {
+    Camera.getPicture().then(function(imageURI) {
+        console.log(imageURI);
+        $scope.lastPhoto = imageURI;
+        $scope.upload();
+    },
+    function(err) {
+        console.log(err);
+    }, {
+        quality: 75,
+        targetWidth: 320,
+        targetHeight: 320,
+        saveToPhotoAlbum: false
+    });
+};
+  
+  
+  function dataURItoBlob(dataURI) {
+// convert base64/URLEncoded data component to raw binary data held in a string
+ var byteString = atob(dataURI.split(',')[1]);
+ var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+ var ab = new ArrayBuffer(byteString.length);
+ var ia = new Uint8Array(ab);
+ for (var i = 0; i < byteString.length; i++)
+ {
+    ia[i] = byteString.charCodeAt(i);
+ }
+
+ var bb = new Blob([ab], { "type": mimeString });
+ return bb;
+}
+  $scope.upload = function() {
+    var url = '';
+    var fd = new FormData();
+
+    //previously I had this
+    //angular.forEach($scope.files, function(file){
+        //fd.append('image',file)
+    //});
+
+    fd.append('image', $scope.lastPhoto);
+
+    $http.post(url, fd, {
+
+        transformRequest:angular.identity,
+        headers:{'Content-Type':undefined
+        }
+    })
+    .success(function(data, status, headers){
+        $scope.imageURL = data.resource_uri; //set it to the response we get
+    })
+    .error(function(data, status, headers){
+
+    })
+}
 	 $scope.register = function() {
   $scope.modal.show();
   };
@@ -58,12 +168,12 @@ angular.module('starter.controllers',[])
                 console.log("Recoded sucessfully in add offer success!");
 				  alert("Offer Added Sucessfully."+data);
         $scope.logins.push(data.data);
-		  $scope.loginusername=$scope.loginData.username;
-		   $scope.isLogin=true;
+		  $scope.loginusername=profile.nickname;
+		
 	 $scope.modal.hide();
      console.log(data);
     }).error(function(data, status, headers, config) {
-                console.log("Auth.signin.error!")
+                console.log("Auth.signin.error!");
 				alert(status);
         console.log(data);
         console.log(status);
@@ -79,100 +189,7 @@ angular.module('starter.controllers',[])
 	
 	};
 	
-	/*
-	
-	 navigator.geolocation.getCurrentPosition(function (pos) {
-		
-var map;
-var infowindow = new google.maps.InfoWindow();
-var marker;
 
-      console.log('Got pos', pos);
-	// alert('This is in geolocation');
-	  console.log("This is in Map Control", pos);
-	  
-	//   alert('This is in geolocation 1');
-  
- //  alert('This is in geolocation 2'+pos);
-  var latlng = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
- // alert('This is in geolocation 3');
-   var geocoder = new google.maps.Geocoder();
-  geocoder.geocode({'latLng': latlng}, function(results, status) {
-    if (status == google.maps.GeocoderStatus.OK) {
-      if (results[1]) {
-        $scope.map.setZoom(16);
-        marker = new google.maps.Marker({
-            position: latlng,
-            map: $scope.map
-        });
-		 google.maps.event.addListener(marker, 'click', function() {
-    infowindow.open($scope.map, marker);
-  });
-		//  alert('This is in geolocation 5  :'+results[1].formatted_address);
-	//	var t=$scope.map.PlaceResult.name;
-		
-		
-		if (!results[1].geometry) {
-      return;
-    }
-
-    if (results[1].geometry.viewport) {
-      $scope.map.fitBounds(results[1].geometry.viewport);
-    } else {
-      $scope.map.setCenter(results[1].geometry.location);
-      $scope.map.setZoom(16);
-    }
-
-    // Set the position of the marker using the place ID and location
-    marker.setPlace( ({
-		//name:results[1].name,
-      placeId: results[1].place_id,
-      location: results[1].geometry.location
-    }));
-    marker.setVisible(true);
-var input1 = results[1].formatted_address;
-var t3= results[1].address_components;
-var t5=t3[1].short_name;
-  var latlngStr = input1.split(',', 4);
-  var t1 =latlngStr[0];
-  
-      //infowindow.setContent(results[1].formatted_address);
-		infowindow.setContent('<div><strong> Area: ' + t1 + '<br> City: '+t5+'</strong><br>' +'Place ID: ' + results[1].place_id + '<br>' +results[1].formatted_address+'');
-        infowindow.open($scope.map, marker);
-		 window.localStorage['place.area.local'] = ''+t1;
-		  window.localStorage['place.city.local'] = ''+t5;
-		   window.localStorage['area.register.local'] = ''+t1;
-		  window.localStorage['city.register.local'] = ''+t5;
-		  $scope.arearegister=t1;
-		$scope.cityregister=t5;
-		  $scope.loginData.area = ''+t1;
-		  $scope.loginData.city = ''+t5;
-      } else {
-        alert('No results found');
-      }
-    } else {
-      alert('Geocoder failed due to: ' + status);
-    }
-  });
-  
-  
- 
-  
-  
-  
-
-		// alert('This is in geolocation 4');
-		// $ionicLoading.hide();
-		$ionicLoading.hide();
-	window.localStorage['pos.coords.latitude.local'] = pos.coords.latitude;
-	window.localStorage['pos.coords.longitude.local'] = pos.coords.longitude;
-
-	$ionicLoading.hide();
-	  }, function (error) {
-     
-    })
-
-	*/
 	$http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 	$scope.registermerchant=function($event){
 		
@@ -197,8 +214,8 @@ var t5=t3[1].short_name;
         "isActive": true,
 		"password":$scope.loginData.pass,
 		"companyname":$scope.loginData.compname,
-		"area":$scope.loginData.area,
-		"city":$scope.loginData.city,
+		"area":window.localStorage['place.area.local'] ,
+		"city":window.localStorage['place.city.local'] ,
 		"email":$scope.loginData.email,
 		"contact1":$scope.loginData.contact1,
 		"contact2":$scope.loginData.contact2
@@ -232,16 +249,19 @@ var t5=t3[1].short_name;
         "isActive": true,
 		"password":$scope.loginData.pass,
 		"companyname":$scope.loginData.compname,
-		"area":$scope.loginData.area,
-		"city":$scope.loginData.city,
+		"area":window.localStorage['place.area.local'] ,
+		"city":window.localStorage['place.city.local'] ,
 		"email":$scope.loginData.email,
 		"contact1":$scope.loginData.contact1,
 		"contact2":$scope.loginData.contact2
       }).then(function(data) {
 		  
         $scope.logins.push(data.data);
-		  $scope.loginusername=$scope.loginData.username;
+		//  $scope.loginusername=$scope.loginData.username;
 		   $scope.isLogin=true;
+		  
+		   	  window.localStorage['userid.local']= $scope.loginData.username;
+	
 		 $scope.modal.hide();
       });
 		
@@ -265,7 +285,7 @@ var t5=t3[1].short_name;
  
  
  
-.controller('AppCtrl', function($scope, $ionicModal, $timeout,loginsFactory, $ionicLoading, $http,Post) {
+.controller('AppCtrl', function($scope, auth,store,$location, $ionicModal, $timeout,loginsFactory, $ionicLoading, $http,Post) {
 	
 	
   // Form data for the login modal
@@ -274,6 +294,7 @@ $scope.logins = [];
   $scope.isEditable = [];
   $scope.passwords = [];
   $scope.isLogin=false;
+   window.localStorage['isLogin']=false; 
   // Create the login modal that we will use later
  $ionicModal.fromTemplateUrl('templates/login.html', {
     scope: $scope
@@ -288,10 +309,87 @@ $scope.logins = [];
 
   // Open the login modal
   $scope.login = function() {
-    $scope.modal.show();
-  };
+	  
+	  
+    //$scope.modal.show();
+	
+	 auth.signin({
+      authParams: {
+        scope: 'openid offline_access',
+        device: '*'
+      }
+    }, function(profile, token, accessToken, state, refreshToken) {
+      // Success callback
+	  console.log('THIS IS SUCESS LOGIN');
+      store.set('profile', profile);
+      store.set('token', token);
+      store.set('refreshToken', refreshToken);
+      $location.path('/');
+	    $scope.isLogin=true;
+		
+		/* Saving into DataBase User Details*/
+		var now = new Date();
+
+$http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+  
+  
+        var headers1 = {
+            'Access-Control-Allow-Origin' : '*',
+            'Access-Control-Allow-Methods' : 'POST, GET, OPTIONS, PUT',
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
+        };
+		var t1=profile.nickname;
+		var t2=profile.email;
+		console.log("This is save in appctrl 2: User:"+t1+' CITY:'+window.localStorage['place.city.local']);
+		return $http({
+            method: "POST",
+            headers: headers1,
+      url: 'http://104.155.192.54:8080/api/logins',
+            data: {
+      "login": t1,
+	  "email":t2,
+        "isAdmin": false,
+		"area":window.localStorage['place.area.local'] ,
+		"city":window.localStorage['place.city.local'] ,
+		"date":''+now
+      }
+    }).success(function(data) {
+                console.log("Auth.signin.success!")
+			//	alert("Auth signin success!");
+				  $scope.logins.push(data.data);
+		  $scope.loginusername=profile.nickname;
+		//  window.localStorage['userid.local']= t1;
+		   window.localStorage['isLogin']=true; 
+		   $scope.isLogin=true;
+	
+		// $scope.modal.hide();
+	
+	console.log(data);
+		
+              
+    }).error(function(data, status, headers, config) {
+                console.log("Auth.signin.error!"+data)
+        console.log(data);
+        console.log(status);
+		 alert(data);
+        console.log(headers);
+        console.log(config);
+    });
+	
+		
+		
+		
+    }, function() {
+      // Error callback
+    });
+  }
+	
+ 
  $scope.logout = function() {
-	 
+	  auth.signout();
+  store.remove('profile');
+  store.remove('token');
     $scope.isLogin=false;
   };
   
@@ -347,16 +445,19 @@ $http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
       "login": t1,
         "isAdmin": false,
 		"password":t2,
-		"area":area,
-		"city":city,
+		"area":window.localStorage['place.area.local'] ,
+		"city":window.localStorage['place.city.local'] ,
 		"date":''+now
       }
     }).success(function(data) {
                 console.log("Auth.signin.success!")
 				alert("Auth.signin.success!");
 				  $scope.logins.push(data.data);
-		  $scope.loginusername=$scope.loginData.username;
+		//  $scope.loginusername=$scope.loginData.username;
+		  window.localStorage['userid.local']= t1;
+		   window.localStorage['isLogin']=true; 
 		   $scope.isLogin=true;
+	
 		 $scope.modal.hide();
 	
 	console.log(data);

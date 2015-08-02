@@ -8,8 +8,18 @@
       Ionic Framework Team&#xD;
     </author>
   <content src="index.html"/>
-  <access origin=".*"/>
-  <access origin="http://104.155.192.54:8080" />
+ <access origin=".*"/>
+  <access origin="http://104.155.192.54" />
+ <allow-intent href="http://*/*"/>
+<allow-intent href="https://*/*"/>
+<allow-intent href="*" />
+   <allow-navigation href="*" />
+   <allow-navigation href="http://*/*" />
+   
+   <allow-intent href="geo:*" />
+   <allow-intent href="*" />
+   <plugin name="File" value="org.apache.cordova.FileUtils" />
+<plugin name="FileTransfer" value="org.apache.cordova.FileTransfer" />
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
   <preference name="DisallowOverscroll" value="true"/>
@@ -22,6 +32,19 @@
   </feature>
   <feature name="StatusBar">
     <param name="ios-package" value="CDVStatusBar" onload="true"/>
+  </feature>
+  <feature name="Camera">
+      <param name="android-package" value="org.apache.cordova.CameraLauncher" />
+  </feature>
+  <feature name="InAppBrowser">
+  <param name="ios-package" value="CDVInAppBrowser" />
+  <param name="android-package" value="org.apache.cordova.InAppBrowser" />
+</feature>
+   <feature name="File">
+      <param name="android-package" value="org.apache.cordova.FileUtils" />
+  </feature>
+  <feature name="FileTransfer">
+      <param name="android-package" value="org.apache.cordova.FileTransfer" />
   </feature>
   <platform name="android">
     <icon src="resources/android/icon/drawable-ldpi-icon.png" density="ldpi"/>

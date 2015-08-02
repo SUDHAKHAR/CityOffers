@@ -1,16 +1,38 @@
-<ion-view>
+<html>
+ <body>
+ 	
+	
+<ion-view view-title="Lokal Offers" align-title="center">
+
   <ion-header-bar>
-    
+    <head>
+  <script type= "text/javascript" src = "js/countries.js"></script>
+  <script language="javascript">
+			populateCountries("country", "state");
+			
+		</script>
+		
+  </head>
+  
   </ion-header-bar>
-   <ion-content >
+  <ion-content >
+  
+ 
+	 
+   
 	<form ng-click="register()">
 	<button class="button button-clear button-positive" style="float: right;" ng-hide="isLogin" type="submit">
   Register Merchant
 </button>
 	
 	</form>
+	Select Country (with states):   <select id="country" name ="country"></select>
+Select State: <select name ="state" id ="state"></select>
+
 	<br><br><br>
-	 <form ng-submit="addoffer_new($event,addOffer)">
+	
+	  <form ng-submit="addoffer_new($event,addOffer)">
+	 
   <div class="list">
  
 			 <label class="item item-input">
@@ -18,12 +40,17 @@
           <input type="text" id="ouserid" value="{{loginData.username}}" ng-model="addOffer.userid">
         </label>
 		<label class="item item-input item-select">
-     <span class="input-label">Shop Area</span>
-    <select ng-model="addOffer.area">
-      <option>Visakhapatnam</option>
-      <option selected>NAD</option>
-      <option>Pendurthy</option>
-    </select>
+     <span class="input-label countries">Shop Area</span>
+	 Select Country (with states):   <select id="country" name ="country"></select>
+			
+		Select State: <select name ="state" id ="state"></select>
+
+      		
+		
+
+  </label>	 
+  <label class="item item-input item-select" >
+
   </label>	 
 		 <label class="item item-input">
           <span class="input-label">Shop Name</span>
@@ -35,7 +62,9 @@
         </label>
 		 <label class="item item-input">
           <span class="input-label">Upload Offer Image</span>
-          <input type="text" id="oimage"   ng-model="addOffer.image">
+		  <input type="text" id="oofferimage"  ng-model="addOffer.offerimage">
+
+         
         </label>
 		 <label class="item item-input">
           <span class="input-label">Offer Details</span>
@@ -57,12 +86,53 @@
           <span class="input-label">Alternate No.</span>
           <input type="text" id="ocontact2" 	ng-model="addOffer.contact2">
         </label>
+		
        <label class="item item-input">
           <button class="button button-block button-positive" type="submit">Add Offer</button>
 		</label>
   
+	
    </div>
+   
+   
    </form>
+   
+    <div class="list">
+        <div ng-repeat="file in files">
+            <a class="item item-icon-left" href="#" ng-click="getContents(file.nativeURL)">
+                <i ng-show="file.isDirectory" class="icon ion-folder"></i>
+                <i ng-show="file.isFile" class="icon ion-document"></i>
+                {{file.name}}
+            </a>
+        </div>
+    </div>
+   <div class="list">
+   <button class="button button-icon icon ion-ios-camera" ng-click="getPhoto()" class="button button-block button-primary">Take Photo</button>
+   </div>
+<div>
+<button class="button button-icon icon ion-ios-folder" ng-click="browse($event)" class="button button-block button-primary">Browse folder</button>
+  
+</div>
+<div>
+<button class="button button-icon icon ion-email" ng-click="sendsms($event)" class="button button-block button-primary">Send Sms</button>
+  
+</div>
+   <div>
+     <img ng-src="{{lastPhoto}}" style="max-width: 100%"> 
+   </div>
+   <br><br><br>
+   <div class="list">
+        <div ng-repeat="file in files">
+            <a class="item item-icon-left" href="#" ng-click="getContents(file.nativeURL)">
+                <i ng-show="file.isDirectory" class="icon ion-folder"></i>
+                <i ng-show="file.isFile" class="icon ion-document"></i>
+                {{file.name}}
+            </a>
+        </div>
+    </div>
+   
+   <br><br><br>
+   
 	<div>Select Area</div>
 	<!--
       <map on-create="mapCreated(map)"  ></map>
@@ -71,9 +141,14 @@
 	  </div>
 	 <br> <br> <br> -->
 	  </ion-content>
+	 
 	<div class="bar bar-footer bar-positive">
   <button class="button button-clear"></button>
   <div  class="button button-clear"style="font-size:60%">(R)Copy Rights Reserved @2015</div>
   <button  class="button button-clear"style="font-size:75%" >Developed by Devi Android Apps</button>
 </div>
+
 </ion-view>
+
+  </body>
+</html>

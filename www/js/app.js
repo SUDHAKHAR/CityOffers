@@ -5,7 +5,9 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives','ngResource'])
+angular.module('starter', ['ionic', 'starter.controllers','starter.directives',  'auth0',
+  'angular-storage',
+  'angular-jwt', 'ngFileUpload','ngResource'])
 
 
 .config(['$httpProvider', function($httpProvider) {
@@ -14,6 +16,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
         delete $httpProvider.defaults.headers.common['X-Requested-With'];
     }
 ])
+
+
+
+
+
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -28,9 +35,97 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     }
   });
 })
+ 
+
+ 
+/*File factory for browse*/
+.factory("$fileFactory", function($q) {
+
+    var File = function() { };
+console.log("This is in file factory");
+    File.prototype = {
+
+        getParentDirectory: function(path) {
+            var deferred = $q.defer();
+            window.resolveLocalFileSystemURI(path, function(fileSystem) {
+                fileSystem.getParent(function(result) {
+                    deferred.resolve(result);
+                }, function(error) {
+                    deferred.reject(error);
+                });
+            }, function(error) {
+                deferred.reject(error);
+            });
+            return deferred.promise;
+        },
+
+        getEntriesAtRoot: function() {
+            var deferred = $q.defer();
+			console.log("This is in get Entries in root");
+            window.webkitrequestFileSystem(1, 0, function(fileSystem) {
+                var directoryReader = fileSystem.root.createReader();
+                directoryReader.readEntries(function(entries) {
+                    deferred.resolve(entries);
+                }, function(error) {
+                    deferred.reject(error);
+                });
+            }, function(error) {
+                deferred.reject(error);
+            });
+            return deferred.promise;
+        },
+
+        getEntries: function(path) {
+            var deferred = $q.defer();
+            window.resolveLocalFileSystemURI(path, function(fileSystem) {
+                var directoryReader = fileSystem.createReader();
+                directoryReader.readEntries(function(entries) {
+                    deferred.resolve(entries);
+                }, function(error) {
+                    deferred.reject(error);
+                });
+            }, function(error) {
+                deferred.reject(error);
+            });
+            return deferred.promise;
+        }
+
+    };
+
+    return File;
+
+})
+
+
 .factory('Post', function($resource) {
   return $resource('http://104.155.192.54:8080/api/logins');
 })
+
+.config(function($compileProvider){
+  $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|tel):/);
+})
+/*This is file browser in ionic */
+
+
+
+
+.factory('Camera', ['$q', function($q) {
+
+  return {
+    getPicture: function(options) {
+      var q = $q.defer();
+
+      navigator.camera.getPicture(function(result) {
+        // Do any magic you need
+        q.resolve(result);
+      }, function(err) {
+        q.reject(err);
+      }, options);
+
+      return q.promise;
+    }
+  }
+}])
 
 
 .config(['$httpProvider', function($httpProvider) {
@@ -118,8 +213,70 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
 })
 
 
-.config(function($stateProvider, $urlRouterProvider) {
+
+
+.run(function($rootScope, auth, store, jwtHelper, $location) {
+  // This events gets triggered on refresh or URL change
+  var refreshingToken = null;
+  $rootScope.$on('$locationChangeStart', function() {
+    var token = store.get('token');
+    var refreshToken = store.get('refreshToken');
+    if (token) {
+      if (!jwtHelper.isTokenExpired(token)) {
+        if (!auth.isAuthenticated) {
+          auth.authenticate(store.get('profile'), token);
+        }
+      } else {
+        if (refreshToken) {
+          if (refreshingToken === null) {
+              refreshingToken =  auth.refreshIdToken(refreshToken).then(function(idToken) {
+                store.set('token', idToken);
+                auth.authenticate(store.get('profile'), idToken);
+              }).finally(function() {
+                  refreshingToken = null;
+              });
+          }
+          return refreshingToken;
+        } else {
+          $location.path('/login');
+        }
+      }
+    }
+
+  });
+})
+
+.config(function($stateProvider, $urlRouterProvider, authProvider, $httpProvider,
+  jwtInterceptorProvider) {
+  
+  
+   jwtInterceptorProvider.tokenGetter = function(store, jwtHelper, auth) {
+    var idToken = store.get('token');
+    var refreshToken = store.get('refreshToken');
+    // If no token return null
+    if (!idToken || !refreshToken) {
+      return null;
+    }
+    // If token is expired, get a new one
+    if (jwtHelper.isTokenExpired(idToken)) {
+      return auth.refreshIdToken(refreshToken).then(function(idToken) {
+        store.set('token', idToken);
+        return idToken;
+      });
+    } else {
+      return idToken;
+    }
+  }
+
+  $httpProvider.interceptors.push('jwtInterceptor');
+  
+  
+  
   $stateProvider
+
+  
+  
+  
 
   .state('app', {
     url: "/app",
@@ -166,10 +323,22 @@ angular.module('starter', ['ionic', 'starter.controllers', 'starter.directives',
     } 
   });
   
+   authProvider.init({
+    domain: 'lokaloffers.auth0.com',
+    clientID: 'cWQeRf3L4Ength5tIFSrPhrNPUHgO6yQ',
+    loginState: 'login'
+  });
+
+  
+  
   
   
   
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/app/playlists');
+})
+.run(function(auth) {
+  // This hooks all auth events to check everything as soon as the app starts
+  auth.hookEvents();
 });
 
