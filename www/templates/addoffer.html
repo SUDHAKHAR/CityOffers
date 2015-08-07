@@ -6,11 +6,7 @@
 
   <ion-header-bar>
     <head>
-  <script type= "text/javascript" src = "js/countries.js"></script>
-  <script language="javascript">
-			populateCountries("country", "state");
-			
-		</script>
+
 		
   </head>
   
@@ -31,7 +27,7 @@ Select State: <select name ="state" id ="state"></select>
 
 	<br><br><br>
 	
-	  <form ng-submit="addoffer_new($event,addOffer)">
+	  <form >
 	 
   <div class="list">
  
@@ -62,9 +58,9 @@ Select State: <select name ="state" id ="state"></select>
         </label>
 		 <label class="item item-input">
           <span class="input-label">Upload Offer Image</span>
-		  <input type="text" id="oofferimage"  ng-model="addOffer.offerimage">
+		 <button class="button button-icon icon ion-ios-folder" ng-model="addOffer.offerimage" ng-click="browse($event)" class="button button-block button-primary"> Browse/Camera</button>
 
-         
+          <img ng-src="{{lastPhoto}}" style="max-width: 100%"> 
         </label>
 		 <label class="item item-input">
           <span class="input-label">Offer Details</span>
@@ -88,7 +84,7 @@ Select State: <select name ="state" id ="state"></select>
         </label>
 		
        <label class="item item-input">
-          <button class="button button-block button-positive" type="submit">Add Offer</button>
+          <button class="button button-block button-positive" ng-click="addoffer_new($event,addOffer)" type="submit">Add Offer</button>
 		</label>
   
 	
@@ -97,16 +93,8 @@ Select State: <select name ="state" id ="state"></select>
    
    </form>
    
-    <div class="list">
-        <div ng-repeat="file in files">
-            <a class="item item-icon-left" href="#" ng-click="getContents(file.nativeURL)">
-                <i ng-show="file.isDirectory" class="icon ion-folder"></i>
-                <i ng-show="file.isFile" class="icon ion-document"></i>
-                {{file.name}}
-            </a>
-        </div>
-    </div>
-   <div class="list">
+  
+   <div >
    <button class="button button-icon icon ion-ios-camera" ng-click="getPhoto()" class="button button-block button-primary">Take Photo</button>
    </div>
 <div>
@@ -115,21 +103,13 @@ Select State: <select name ="state" id ="state"></select>
 </div>
 <div>
 <button class="button button-icon icon ion-email" ng-click="sendsms($event)" class="button button-block button-primary">Send Sms</button>
-  
+   <button class="button button-icon icon ion-ios-folder" ng-click="upload2($event)" class="button button-block button-primary">Open Gallery</button>
 </div>
    <div>
      <img ng-src="{{lastPhoto}}" style="max-width: 100%"> 
    </div>
    <br><br><br>
-   <div class="list">
-        <div ng-repeat="file in files">
-            <a class="item item-icon-left" href="#" ng-click="getContents(file.nativeURL)">
-                <i ng-show="file.isDirectory" class="icon ion-folder"></i>
-                <i ng-show="file.isFile" class="icon ion-document"></i>
-                {{file.name}}
-            </a>
-        </div>
-    </div>
+   
    
    <br><br><br>
    

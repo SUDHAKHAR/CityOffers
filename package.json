@@ -49,7 +49,12 @@
     "org.apache.cordova.camera",
     "cordova-plugin-file",
     "org.apache.cordova.file",
-    "org.apache.cordova.file-transfer"
+    "org.apache.cordova.file-transfer",
+    {
+      "locator": "https://github.com/EddyVerbruggen/SocialSharing-PhoneGap-Plugin.git",
+      "id": "nl.x-services.plugins.socialsharing"
+    },
+    "com.jsmobile.plugins.sms"
   ],
   "cordovaPlatforms": []
 }

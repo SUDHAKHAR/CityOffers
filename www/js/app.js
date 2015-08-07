@@ -5,7 +5,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers','starter.directives',  'auth0',
+angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers','starter.directives',  'auth0',
   'angular-storage',
   'angular-jwt', 'ngFileUpload','ngResource'])
 
@@ -17,7 +17,9 @@ angular.module('starter', ['ionic', 'starter.controllers','starter.directives', 
     }
 ])
 
-
+.config(function($compileProvider){
+  $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|file|blob|cdvfile|content):|data:image\//);
+})
 
 
 
@@ -40,6 +42,8 @@ angular.module('starter', ['ionic', 'starter.controllers','starter.directives', 
  
 /*File factory for browse*/
 .factory("$fileFactory", function($q) {
+
+
 
     var File = function() { };
 console.log("This is in file factory");
@@ -308,7 +312,7 @@ console.log("This is in file factory");
       views: {
         'menuContent': {
           templateUrl: "templates/playlists.html",
-          controller: 'PlaylistsCtrl'
+          controller: 'ExampleController'
         }
       }
     })
@@ -318,7 +322,7 @@ console.log("This is in file factory");
     views: {
       'menuContent': {
         templateUrl: "templates/playlist.html",
-        controller: 'PlaylistCtrl'
+        controller: 'ExampleController'
       }
     } 
   });

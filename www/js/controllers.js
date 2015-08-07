@@ -1,7 +1,75 @@
 angular.module('starter.controllers',[])
 
+.controller("ExampleController", function($scope, $cordovaSocialSharing,$cordovaSms,$ionicPopup) {
+ 
+    $scope.shareAnywhere = function() {
+		 alert("this is in share in Twitter 1");
+        $cordovaSocialSharing.share("Welcome To LokalOffers", "you might like this Ad", "www/imagefile.png", "http://lokaloffers.com");
+    alert("this is in share in Twitter 2");
+   }
+ 
+    $scope.shareViaTwitter = function(message, image, link) {
+        $cordovaSocialSharing.canShareVia("twitter", message, image, link).then(function(result) {
+			 alert("this is in share in Twitter");
+            $cordovaSocialSharing.shareViaTwitter(message, image, link);
+        }, function(error) {
+            alert("Cannot share on Twitter");
+        });
+    }
+ $scope.sendsms	 = function() {
+	 alert("This is in Send sms 1");
+	  var options = {
+            replaceLineBreaks: false, // true to replace \n by a new line, false by default
+            android: {
+                intent: 'INTENT'  // send SMS with the native android SMS messaging
+                //intent: '' // send SMS without open any other app
+            }
+        };
 
-.controller('MapCtrl', function($scope, $ionicModal,$ionicPlatform, $ionicLoading,merchantRegisterFactory, $http, Camera, $fileFactory) {
+alert("This is in Send sms 2");
+    $cordovaSms
+      .send('09618188535', 'This is my First SMS', options)
+      .then(function() {
+        alert("SmS Sent");
+      }, function(error) {
+          alert("Sms not Sent");
+      });
+document.addEventListener("deviceready", onDeviceReady, false);
+  
+ }
+
+})
+
+
+.controller('MapCtrl', function($scope, $ionicModal,$ionicPopup,$ionicPlatform,$cordovaSms, $cordovaFileTransfer,$ionicLoading,merchantRegisterFactory, $http, Camera, $fileFactory, $cordovaCamera, $cordovaFile) {
+	
+	/*This is for uploading image to server*/
+	
+	 $scope.upload2 = function($event) {
+		  console.log("This is in upload2 1");
+		 document.addEventListener("deviceready", function () {
+                var options = {
+                     quality: 75,
+        targetWidth: 320,
+        targetHeight: 320,
+                  //  destinationType: Camera.DestinationType.DATA_URL,
+                    sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY,
+                    allowEdit: false,
+                  //  encodingType: Camera.EncodingType.PNG,
+                  //  targetWidth: 800,
+                  //  targetHeight: 1100,
+                  //  popoverOptions: CameraPopoverOptions,
+                    saveToPhotoAlbum: false
+                };
+                $cordovaCamera.getPicture(options).then(function (imageData) {
+
+                    $scope.image = "data:image/png;base64," + imageData;
+                }, function (err) {
+                    // error
+                });
+            }	, false);
+    };
+ 
 	
 	
 	/*This is for sending sms*/
@@ -18,21 +86,36 @@ angular.module('starter.controllers',[])
 	 document.addEventListener("deviceready", function () {
  console.log("This is in sms 2");
     $cordovaSms
-      .send('9618188535', 'This is Test', options)
+      .send('+919618188535', 'This is Test', options)
       .then(function() {
 		   console.log("This is in sms 3");
+		   alert("SMS Sent");
         // Success! SMS was sent
       }, function(error) {
+		  alert("SMS Not Sent");
         // An error occurred
       });
 
   });
 	};
+	
+	
+	/*This is for files and folders browse*/
+	$ionicModal.fromTemplateUrl('templates/explore.html', {
+    scope: $scope
+  }).then(function(modal1) {
+    $scope.modal1 = modal1;
+  });
+  
 	/*This below code is for file browser*/
 	var fs = new $fileFactory();
-	
+	 $scope.closebrowse = function() {
+    $scope.modal1.hide();
+  };
  $scope.browse=function($event) {
+	 /*
 	  console.log("This is in browse.1");
+	   $scope.modal1.show();
         fs.getEntriesAtRoot().then(function(result) {
 			 console.log("This is in browse.2");
             $scope.files = result;
@@ -51,6 +134,58 @@ angular.module('starter.controllers',[])
                 });
             });
         }
+		*/
+		
+		 var uploadPopup = $ionicPopup.show({
+        title: "Upload Ad picture",
+        templateUrl: 'templates/explore1.html',
+        buttons: [
+            {
+                text: '',
+                type: 'button-energized icon-center ion-ios-camera',
+                onTap: function(e) {
+
+                    // e.preventDefault() will stop the popup from closing when tapped.
+                  //  e.preventDefault();
+                 //   alert('Getting camera');
+                    Camera.getPicture({
+                       quality: 75,
+        targetWidth: 320,
+        targetHeight: 320,
+        saveToPhotoAlbum: false
+                    }).then(function(imageURI) {
+                        alert(imageURI);
+                        $scope.lastPhoto = imageURI;
+                    }, function(err) {
+                        alert(err);
+                    });
+
+                }
+            },
+            {
+                text: 'From gallery',
+                type: 'button',
+                onTap: function(e) {
+                  //  e.preventDefault();
+               //     alert('Getting gallery');
+                    Camera.getPicture({
+                        quality: 75,
+        targetWidth: 320,
+        targetHeight: 320,
+        
+                        sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY
+                    }).then(function(imageURI) {
+                        alert(imageURI);
+                        $scope.lastPhoto = imageURI;
+                    }, function(err) {
+                        alert(err);
+                    });
+                }
+            }
+        ]
+    });
+		
+		
     };
 
 
@@ -69,7 +204,7 @@ angular.module('starter.controllers',[])
     Camera.getPicture().then(function(imageURI) {
         console.log(imageURI);
         $scope.lastPhoto = imageURI;
-        $scope.upload();
+       // $scope.upload();
     },
     function(err) {
         console.log(err);
@@ -125,6 +260,7 @@ angular.module('starter.controllers',[])
   $scope.modal.show();
   };
 	
+	
 	 $scope.closeregister = function() {
     $scope.modal.hide();
   };
@@ -168,9 +304,9 @@ angular.module('starter.controllers',[])
                 console.log("Recoded sucessfully in add offer success!");
 				  alert("Offer Added Sucessfully."+data);
         $scope.logins.push(data.data);
-		  $scope.loginusername=profile.nickname;
+		 // $scope.loginusername=profile.nickname;
 		
-	 $scope.modal.hide();
+	// $scope.modal.hide();
      console.log(data);
     }).error(function(data, status, headers, config) {
                 console.log("Auth.signin.error!");
