@@ -1,8 +1,15 @@
 angular.module('starter.controllers',[])
 
-.controller("ExampleController", function($scope, $cordovaSocialSharing,$cordovaSms,$ionicPopup) {
+.controller("ExampleController", function($scope, $cordovaSocialSharing,$cordovaSms,$ionicPopup,addOffer) {
  
-    $scope.shareAnywhere = function() {
+   $scope.addoffers=[];
+addOffer.getOffers().then(function(data) {
+    $scope.addoffers = data.data;
+  });
+ 
+
+
+   $scope.shareAnywhere = function() {
 		 alert("this is in share in Twitter 1");
         $cordovaSocialSharing.share("Welcome To LokalOffers", "you might like this Ad", "www/imagefile.png", "http://lokaloffers.com");
     alert("this is in share in Twitter 2");
@@ -16,6 +23,9 @@ angular.module('starter.controllers',[])
             alert("Cannot share on Twitter");
         });
     }
+	
+	
+	
  $scope.sendsms	 = function() {
 	 alert("This is in Send sms 1");
 	  var options = {
@@ -142,29 +152,31 @@ document.addEventListener("deviceready", onDeviceReady, false);
         buttons: [
             {
                 text: '',
-                type: 'button-energized icon-center ion-ios-camera',
+                type: 'button button-icon icon ion-ios-camera',
                 onTap: function(e) {
 
                     // e.preventDefault() will stop the popup from closing when tapped.
-                  //  e.preventDefault();
+                 //   e.preventDefault();
                  //   alert('Getting camera');
-                    Camera.getPicture({
-                       quality: 75,
+                     Camera.getPicture().then(function(imageURI) {
+        console.log(imageURI);
+        $scope.lastPhoto = imageURI;
+       // $scope.upload();
+    },
+    function(err) {
+        console.log(err);
+    }, {
+        quality: 75,
         targetWidth: 320,
         targetHeight: 320,
         saveToPhotoAlbum: false
-                    }).then(function(imageURI) {
-                        alert(imageURI);
-                        $scope.lastPhoto = imageURI;
-                    }, function(err) {
-                        alert(err);
-                    });
+    });
 
                 }
             },
             {
                 text: 'From gallery',
-                type: 'button',
+                type: 'button button-positive',
                 onTap: function(e) {
                   //  e.preventDefault();
                //     alert('Getting gallery');
@@ -217,20 +229,25 @@ document.addEventListener("deviceready", onDeviceReady, false);
 };
   
   
-  function dataURItoBlob(dataURI) {
-// convert base64/URLEncoded data component to raw binary data held in a string
- var byteString = atob(dataURI.split(',')[1]);
- var mimeString = dataURI.split(',')[0].split(':')[1].split(';')[0]
+ function dataURItoBlob(dataURI) {
+    'use strict'
+    var byteString, 
+        mimestring 
 
- var ab = new ArrayBuffer(byteString.length);
- var ia = new Uint8Array(ab);
- for (var i = 0; i < byteString.length; i++)
- {
-    ia[i] = byteString.charCodeAt(i);
- }
+    if(dataURI.split(',')[0].indexOf('base64') !== -1 ) {
+        byteString = atob(dataURI.split(',')[1])
+    } else {
+        byteString = decodeURI(dataURI.split(',')[1])
+    }
 
- var bb = new Blob([ab], { "type": mimeString });
- return bb;
+    mimestring = dataURI.split(',')[0].split(':')[1].split(';')[0]
+
+    var content = new Array();
+    for (var i = 0; i < byteString.length; i++) {
+        content[i] = byteString.charCodeAt(i)
+    }
+
+    return new Blob([new Uint8Array(content)], {type: mimestring});
 }
   $scope.upload = function() {
     var url = '';
@@ -273,7 +290,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
 	 alert("This is in Map Control addoffer : "+$addOffer.shopname);
 	/*This is for adding offers to database*/
 	 var now = new Date();
-  
+  var blob_image=dataURItoBlob( $scope.lastPhoto);
         var headers = {
             'Access-Control-Allow-Origin' : '*',
             'Access-Control-Allow-Methods' : 'POST, GET, OPTIONS, PUT',
@@ -291,9 +308,12 @@ document.addEventListener("deviceready", onDeviceReady, false);
         "offerarea": $addOffer.area,
 		"offershopname":$addOffer.shopname,
 		"offercategory":$addOffer.shopcat,
-		"offerimage":$addOffer.image,
+		"offerimage":dataURItoBlob( $scope.lastPhoto),
 		"offerdetails":$addOffer.offerdetails,
-		"offerperiod":$addOffer.offerperiod,
+		"offerstartdate":$addOffer.offerstartdate,
+		"offerstarttime":$addOffer.offerstarttime,
+		"offerenddate":$addOffer.offerenddate,
+		"offerendtime":$addOffer.offerendtime,
 		"offeremail":$addOffer.email,
 		"offercontact1":$addOffer.contact1,
 		"offercontact2":$addOffer.contact2,

@@ -1,54 +1,43 @@
 <html>
  <body>
- 	
-	
 <ion-view view-title="Lokal Offers" align-title="center">
+  <ion-header-bar>  
+<head>
+<script type="text/javascript" src="js/countries.js"></script>
 
-  <ion-header-bar>
-    <head>
 
-		
-  </head>
-  
+</head>
   </ion-header-bar>
   <ion-content >
-  
- 
-	 
-   
-	<form ng-click="register()">
-	<button class="button button-clear button-positive" style="float: right;" ng-hide="isLogin" type="submit">
+	<button class="button button-clear button-positive" ng-click="register()" style="float: right;" ng-hide="isLogin" type="submit">
   Register Merchant
 </button>
-	
-	</form>
-	Select Country (with states):   <select id="country" name ="country"></select>
-Select State: <select name ="state" id ="state"></select>
-
 	<br><br><br>
-	
-	  <form >
-	 
+		<form >
   <div class="list">
  
 			 <label class="item item-input">
           <span class="input-label">UserId</span>
           <input type="text" id="ouserid" value="{{loginData.username}}" ng-model="addOffer.userid">
         </label>
-		<label class="item item-input item-select">
-     <span class="input-label countries">Shop Area</span>
-	 Select Country (with states):   <select id="country" name ="country"></select>
-			
-		Select State: <select name ="state" id ="state"></select>
+		<label class="item item-input">
+          <span class="input-label">Shop Area</span>
+	Select Country (with states):
+        <select id="country" name="country"><option  >{{country}}</option>
+		</select>
+        <br />State:
+        <select name="state" id="state"></select>
+        <br/>
+     
+        <br />
+       <script language="javascript">
+			populateCountries("country", "state");
+			populateCountries("country2");
+		</script>
 
-      		
-		
-
-  </label>	 
-  <label class="item item-input item-select" >
-
-  </label>	 
-		 <label class="item item-input">
+ </label>
+ 
+	 <label class="item item-input">
           <span class="input-label">Shop Name</span>
           <input type="text" id="oshopname" ng-model="addOffer.shopname"  >
         </label>
@@ -59,7 +48,8 @@ Select State: <select name ="state" id ="state"></select>
 		 <label class="item item-input">
           <span class="input-label">Upload Offer Image</span>
 		 <button class="button button-icon icon ion-ios-folder" ng-model="addOffer.offerimage" ng-click="browse($event)" class="button button-block button-primary"> Browse/Camera</button>
-
+ </label>
+  <label class="item">
           <img ng-src="{{lastPhoto}}" style="max-width: 100%"> 
         </label>
 		 <label class="item item-input">
@@ -67,20 +57,29 @@ Select State: <select name ="state" id ="state"></select>
           <input type="text" id="oofferdetails"  ng-model="addOffer.offerdetails">
         </label>
 		 <label class="item item-input">
-          <span class="input-label">Offer Period</span>
-          <input type="text" id="oofferperiod" ng-model="addOffer.offerperiod">
+          <span class="input-label">Offer StartDate & Time</span>
+		  <input type="date"   ng-model="addOffer.offerstartdate" ><br>
+		  <input type="time"  placeholder="12:00:AM" ng-model="addOffer.offerstarttime" >
+          
         </label>
 		<label class="item item-input">
+          <span class="input-label">Offer EndDate & Time</span>
+		  <input type="date"   ng-model="addOffer.offerenddate" ><br>
+		  <input type="time"  placeholder="12:00:AM" ng-model="addOffer.offerendtime" >
+          
+        </label>
+	
+		<label class="item item-input">
           <span class="input-label">E-mail</span>
-          <input type="text" id="oemail" ng-model="addOffer.email">
+          <input type="email" ng-model="addOffer.email">
         </label>
 		<label class="item item-input">
           <span class="input-label">Contact No.</span>
-          <input type="text" id="ocontact1" ng-model="addOffer.contact1"  >
+          <input type="tel" ng-model="addOffer.contact1"  >
         </label>
 		<label class="item item-input">
           <span class="input-label">Alternate No.</span>
-          <input type="text" id="ocontact2" 	ng-model="addOffer.contact2">
+          <input type="tel" 	ng-model="addOffer.contact2">
         </label>
 		
        <label class="item item-input">
@@ -89,10 +88,10 @@ Select State: <select name ="state" id ="state"></select>
   
 	
    </div>
-   
+   <br><br><br>
    
    </form>
-   
+   <!--
   
    <div >
    <button class="button button-icon icon ion-ios-camera" ng-click="getPhoto()" class="button button-block button-primary">Take Photo</button>
@@ -114,7 +113,7 @@ Select State: <select name ="state" id ="state"></select>
    <br><br><br>
    
 	<div>Select Area</div>
-	<!--
+	
       <map on-create="mapCreated(map)"  ></map>
    <div>
       <button ng-click="centerOnMe()" class="button button-icon icon ion-navigate">Show My Location</button>
@@ -129,6 +128,6 @@ Select State: <select name ="state" id ="state"></select>
 </div>
 
 </ion-view>
-
+ 
   </body>
 </html>

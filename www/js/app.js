@@ -7,7 +7,7 @@
 // 'starter.controllers' is found in controllers.js
 angular.module('starter', ['ionic', 'ngCordova', 'starter.controllers','starter.directives',  'auth0',
   'angular-storage',
-  'angular-jwt', 'ngFileUpload','ngResource'])
+  'angular-jwt', 'ngFileUpload','ngResource','ngRoute'])
 
 
 .config(['$httpProvider', function($httpProvider) {
@@ -166,24 +166,24 @@ console.log("This is in file factory");
   var urlBase = 'http://104.155.192.54:8080/api/addoffers';
   var _addofferService = {};
  
-  _loginService.getLogins = function() {
+  _addofferService.getOffers = function() {
     return $http.get(urlBase);
   };
  
-  _loginService.saveLogin = function(login) {
+  _addofferService.saveOffer = function(login) {
 	  console.log("This is factory is addoffers app.js save");
     return $http.post(urlBase,login);
   };
  
-  _loginService.updateLogin = function(login) {
+  _addofferService.updateoffer = function(login) {
     return $http.put(urlBase, login);
   };
  
-  _loginService.deleteLogin = function(id) {
+  _addofferService.deleteOffer = function(id) {
     return $http.delete(urlBase + '/' + id);
   };
  
-  return _loginService;
+  return _addofferService;
 })
 
 
