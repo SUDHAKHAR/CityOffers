@@ -51,7 +51,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
 })
 
 
-.controller('MapCtrl', function($scope, $ionicModal,$ionicPopup,$ionicPlatform,$cordovaSms, $cordovaFileTransfer,$ionicLoading,merchantRegisterFactory, $http, Camera, $fileFactory, $cordovaCamera, $cordovaFile) {
+.controller('MapCtrl', function($scope ,$state, $ionicModal,$ionicPopup,$ionicPlatform,$cordovaSms, $cordovaFileTransfer,$ionicLoading,merchantRegisterFactory, $http, Camera, $fileFactory, $cordovaCamera, $cordovaFile) {
 	
 	/*This is for uploading image to server*/
 	
@@ -123,28 +123,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
     $scope.modal1.hide();
   };
  $scope.browse=function($event) {
-	 /*
-	  console.log("This is in browse.1");
-	   $scope.modal1.show();
-        fs.getEntriesAtRoot().then(function(result) {
-			 console.log("This is in browse.2");
-            $scope.files = result;
-        }, function(error) {
-            console.error(error);
-        });
-
-        $scope.getContents = function(path) {
-			 console.log("This is in browse.3");
-            fs.getEntries(path).then(function(result) {
-                $scope.files = result;
-                $scope.files.unshift({name: "[parent]"});
-                fs.getParentDirectory(path).then(function(result) {
-                    result.name = "[parent]";
-                    $scope.files[0] = result;
-                });
-            });
-        }
-		*/
+	
 		
 		 var uploadPopup = $ionicPopup.show({
         title: "Upload Ad picture",
@@ -169,7 +148,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
         quality: 75,
         targetWidth: 320,
         targetHeight: 320,
-        saveToPhotoAlbum: false
+        saveToPhotoAlbum: true
     });
 
                 }
@@ -182,6 +161,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
                //     alert('Getting gallery');
                     Camera.getPicture({
                         quality: 75,
+						destinationType : Camera.DestinationType.DATA_URL, 
         targetWidth: 320,
         targetHeight: 320,
         
@@ -211,11 +191,12 @@ document.addEventListener("deviceready", onDeviceReady, false);
   }).then(function(modal) {
     $scope.modal = modal;
   });
-
+var image_upload_uri;
   $scope.getPhoto = function() {
     Camera.getPicture().then(function(imageURI) {
         console.log(imageURI);
         $scope.lastPhoto = imageURI;
+		image_upload_uri=imageURI;
        // $scope.upload();
     },
     function(err) {
@@ -288,9 +269,27 @@ document.addEventListener("deviceready", onDeviceReady, false);
 
 	   $scope.loginData = {};
 	 alert("This is in Map Control addoffer : "+$addOffer.shopname);
+	 /*Upload Image to node server */
+	  var options = {
+            fileKey: "offer",
+            fileName: "offer_"+$addOffer.userid,
+            chunkedMode: false,
+            mimeType: "image/jpg"
+        };
+        $cordovaFileTransfer.upload("http://104.155.192.54:8080/api/file/upload", $scope.lastPhoto, options).then(function(result) {
+            console.log("SUCCESS: " + JSON.stringify(result.response));
+        }, function(err) {
+            console.log("ERROR: " + JSON.stringify(err));
+        }, function (progress) {
+            // constant progress updates
+        });
+	 
+	 
 	/*This is for adding offers to database*/
 	 var now = new Date();
   var blob_image=dataURItoBlob( $scope.lastPhoto);
+  console.log("Recoded sucessfully in add offer Blob data!"+blob_image);
+				
         var headers = {
             'Access-Control-Allow-Origin' : '*',
             'Access-Control-Allow-Methods' : 'POST, GET, OPTIONS, PUT',
@@ -308,7 +307,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
         "offerarea": $addOffer.area,
 		"offershopname":$addOffer.shopname,
 		"offercategory":$addOffer.shopcat,
-		"offerimage":dataURItoBlob( $scope.lastPhoto),
+		"offerimage":blob_image,
 		"offerdetails":$addOffer.offerdetails,
 		"offerstartdate":$addOffer.offerstartdate,
 		"offerstarttime":$addOffer.offerstarttime,
@@ -323,6 +322,9 @@ document.addEventListener("deviceready", onDeviceReady, false);
     }).success(function(data) {
                 console.log("Recoded sucessfully in add offer success!");
 				  alert("Offer Added Sucessfully."+data);
+				//  $ionicHistory.clearCache();
+				  $state.go('app.playlists');
+				 //  $urlRouterProvider.otherwise('/templates/playlists.html');
         $scope.logins.push(data.data);
 		 // $scope.loginusername=profile.nickname;
 		

@@ -42,7 +42,7 @@ display: block;
         margin-left: -180px;
         width: 350px;
         z-index: 5;
-        background-color:transparent;
+        background-color:#D2E4FC;
         padding: 5px;
         border: 1px solid #999;
       }
@@ -75,6 +75,16 @@ map1 {
   height: 100%;
 }
 
+.shadow {
+  -moz-box-shadow:    3px 3px 5px 6px #ccc;
+  -webkit-box-shadow: 3px 3px 5px 6px #ccc;
+  box-shadow:         3px 3px 5px 6px #ccc;
+}
+.one-edge-shadow {
+	-webkit-box-shadow: 0 8px 6px -6px black;
+	   -moz-box-shadow: 0 8px 6px -6px black;
+	        box-shadow: 0 8px 6px -6px black;
+}
 .my-menu .item, .my-menu .item-content, .my-menu .item-complex{
   background-color: transparent;
   color:transparent;
@@ -90,9 +100,14 @@ map1 {
   width: 96px;
   height: 96px;
 }
-
+.divouter{
+color: #FCF7FA;
+    background-color: #FCFEF5;
+    border: 1px FCF7FA;
+    padding: 5px;
+}	
 .pane {
-  background-color: transparent;
+  background-color:#D8F0F0  ;
 }
 
 .bar.bar-transparent {

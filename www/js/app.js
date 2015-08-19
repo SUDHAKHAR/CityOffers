@@ -308,6 +308,7 @@ console.log("This is in file factory");
     }
   })
     .state('app.playlists', {
+		 cache: false,
       url: "/playlists",
       views: {
         'menuContent': {
@@ -318,6 +319,7 @@ console.log("This is in file factory");
     })
 
   .state('app.single', {
+	  cache: false,
     url: "/playlists/:playlistId",
     views: {
       'menuContent': {

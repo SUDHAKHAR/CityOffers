@@ -1,20 +1,19 @@
 <ion-view  view-title="Lokal Offers" align-title="center">
    <ion-content >
 
-
 <div   class="" align="center" style="height:50px;text-align:center; border:0px solid; margin:0 auto;width:90%; ">
  <div class="alert alert-info text-center" ng-hide="addoffers.length > 0">
             <h3>No Offers yet!</h3>
         </div>
-<div ng-repeat="addoffers in addoffers" class="card animated tada" style="height: auto">
+<div ng-repeat="addoffers in addoffers" class="card shadow divouter  animated tada" style="height: auto">
   
-  <div  class="item item-avatar" >
+  <div  class="item item-avatar divouter" >
     <img src="./img/ionic.png">
     <h2 class="animated tada">{{addoffers.loginid}}</h2>
     <p>{{addoffers.offershopname}}</p>
   </div>
- <div class="item item-body" >
-    <img  src="./img/ionic.png">
+ <div class="item item-body divouter" >
+    <img ng-src={{addoffers.offerimage}}>
     <p>
      {{addoffers.offerdetails}}
     </p>
@@ -23,7 +22,7 @@
       <a href="#" class="subdued">5 Comments</a>
     </p>
   </div>
- <div class="item tabs tabs-secondary tabs-icon-left">
+ <div class=" item  tabs tabs-secondary tabs-icon-left  " style="background-color: #01D2FF;">
     <a class="tab-item" href="#">
       <i class="icon ion-thumbsup"></i>
       Like
@@ -34,7 +33,7 @@
     <i class="icon ion-share" value="Share" ng-click="shareAnywhere()"></i>Share Ad  </a>
 
   </div>
-  <div class="item tabs tabs-secondary tabs-icon-left">
+ <!-- <div class=" item tabs tabs-secondary tabs-icon-left" style="background-color: #01D2FF;">
   <a>
     <i class="icon ion-share" ng-click="shareAnywhere()">Share Ad</i></a>
 <a><i class="icon ion-share" ng-click="shareViaTwitter('some message', null, 'http://facebook.com')">Share</i></a>
@@ -43,8 +42,8 @@
       Share
     </a>
 
-  </div>
-<a class="item item-icon-left assertive" href="#">
+  </div>-->
+<a class="item item-icon-left assertive" href="#" style="background-color: #01D2FF;">
     <i class="icon ion-music-note"></i>
    Listen to The Ad Audio
   </a>
