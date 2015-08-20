@@ -161,7 +161,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
                //     alert('Getting gallery');
                     Camera.getPicture({
                         quality: 75,
-						destinationType : Camera.DestinationType.DATA_URL, 
+						
         targetWidth: 320,
         targetHeight: 320,
         
