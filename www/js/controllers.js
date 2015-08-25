@@ -2,9 +2,16 @@ angular.module('starter.controllers',[])
 
 .controller("ExampleController", function($scope, $cordovaSocialSharing,$cordovaSms,$ionicPopup,addOffer) {
  
+ 
+
+ 
+ 
+ 
    $scope.addoffers=[];
 addOffer.getOffers().then(function(data) {
     $scope.addoffers = data.data;
+	//var urlSafeBase64EncodedString = encodeURIComponent(""+addoffers.offerimage);
+	//$scope.image1=urlSafeBase64EncodedString;
   });
  
 
@@ -51,7 +58,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
 })
 
 
-.controller('MapCtrl', function($scope ,$state, $ionicModal,$ionicPopup,$ionicPlatform,$cordovaSms, $cordovaFileTransfer,$ionicLoading,merchantRegisterFactory, $http, Camera, $fileFactory, $cordovaCamera, $cordovaFile) {
+.controller('MapCtrl', function($base64,$scope ,$state, $ionicModal,$ionicPopup,$ionicPlatform,$cordovaSms, $cordovaFileTransfer,$ionicLoading,merchantRegisterFactory, $http, Camera, $fileFactory, $cordovaCamera, $cordovaFile) {
 	
 	/*This is for uploading image to server*/
 	
@@ -148,7 +155,8 @@ document.addEventListener("deviceready", onDeviceReady, false);
         quality: 75,
         targetWidth: 320,
         targetHeight: 320,
-        saveToPhotoAlbum: true
+        saveToPhotoAlbum: true,
+		destinationType: parent.window.Camera.DestinationType.DATA_URI
     });
 
                 }
@@ -164,7 +172,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
 						
         targetWidth: 320,
         targetHeight: 320,
-        
+        destinationType: parent.window.Camera.DestinationType.DATA_URI,
                         sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY
                     }).then(function(imageURI) {
                         alert(imageURI);
@@ -208,6 +216,7 @@ var image_upload_uri;
         saveToPhotoAlbum: false
     });
 };
+  
   
   
  function dataURItoBlob(dataURI) {
@@ -263,30 +272,89 @@ var image_upload_uri;
     $scope.modal.hide();
   };
 	
+	function convertImgToBase64URL(url, callback, outputFormat){
+    var img = new Image();
+    img.crossOrigin = '*';
+    img.onload = function(){
+        var canvas = document.createElement('CANVAS'),
+        ctx = canvas.getContext('2d'), dataURL;
+        canvas.height = img.height;
+        canvas.width = img.width;
+        ctx.drawImage(img, 0, 0);
+        dataURL = canvas.toDataURL(outputFormat);
+        callback(dataURL);
+        canvas = null; 
+    };
+    img.src = url;
+}
+
+
+
 	$scope.addoffer_new=function($event,$addOffer){
 		$http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
 	$scope.addOffer = {};
 
 	   $scope.loginData = {};
-	 alert("This is in Map Control addoffer : "+$addOffer.shopname);
+	   
+	    var imageURI = $scope.lastPhoto;
+		/*var server = 'http://104.155.192.54:8080/api/file/upload/';
+		 if (server) {
+        console.log("starting upload");
+        // Specify transfer options
+        var options = new FileUploadOptions();
+        options.fileKey="file";
+        options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
+        options.mimeType="image/jpeg";
+       options.headers = {
+    Connection: "close"
+  }
+  options.chunkedMode = false;
+
+
+        // Transfer picture to server
+        var ft = new FileTransfer();
+		ft.onprogress = function(progressEvent) {
+    if (progressEvent.lengthComputable) {
+      loadingStatus.setPercentage(progressEvent.loaded / progressEvent.total);
+    } else {
+      loadingStatus.increment();
+    }
+    colsole.log(progressEvent.loaded / progressEvent.total);
+  };
+
+        ft.upload(imageURI, server, function(r) {
+            console.log("upload successful"+r.bytesSent+" bytes uploaded.");
+            //document.getElementById('camera_status').innerHTML = "Upload successful: "+r.bytesSent+" bytes uploaded.";
+        }, function(error) {
+            console.log("upload failed - Error Code = "+error.code);
+            //document.getElementById('camera_status').innerHTML = "Upload failed: Code = "+error.code;
+        }, options);
+    }*/
+	  alert("This is in Map Control addoffer : "+$addOffer.shopname);
 	 /*Upload Image to node server */
 	  var options = {
-            fileKey: "offer",
+            fileKey: "offer",	
             fileName: "offer_"+$addOffer.userid,
-            chunkedMode: false,
-            mimeType: "image/jpg"
+        
+            mimeType: "image/jpeg"
         };
-        $cordovaFileTransfer.upload("http://104.155.192.54:8080/api/file/upload", $scope.lastPhoto, options).then(function(result) {
+		
+		document.addEventListener('deviceready', function () {
+
+        $cordovaFileTransfer.upload("http://104.155.192.54:8080/api/file/upload/", $scope.lastPhoto, options).then(function(result) {
             console.log("SUCCESS: " + JSON.stringify(result.response));
         }, function(err) {
             console.log("ERROR: " + JSON.stringify(err));
         }, function (progress) {
             // constant progress updates
         });
-	 
+	  }, false);
 	 
 	/*This is for adding offers to database*/
 	 var now = new Date();
+//	 var base64Image = canvas.toDataURL( ""+$scope.imageURL );
+	   var base64EncodedString = $base64.encode(""+$scope.imageURI);
+//	var base64str = base64_encode(""+$scope.imageURI);
   var blob_image=dataURItoBlob( $scope.lastPhoto);
   console.log("Recoded sucessfully in add offer Blob data!"+blob_image);
 				
@@ -307,7 +375,7 @@ var image_upload_uri;
         "offerarea": $addOffer.area,
 		"offershopname":$addOffer.shopname,
 		"offercategory":$addOffer.shopcat,
-		"offerimage":blob_image,
+		"offerimage":base64EncodedString,
 		"offerdetails":$addOffer.offerdetails,
 		"offerstartdate":$addOffer.offerstartdate,
 		"offerstarttime":$addOffer.offerstarttime,
@@ -323,7 +391,7 @@ var image_upload_uri;
                 console.log("Recoded sucessfully in add offer success!");
 				  alert("Offer Added Sucessfully."+data);
 				//  $ionicHistory.clearCache();
-				  $state.go('app.playlists');
+				 // $state.go('app.playlists');
 				 //  $urlRouterProvider.otherwise('/templates/playlists.html');
         $scope.logins.push(data.data);
 		 // $scope.loginusername=profile.nickname;

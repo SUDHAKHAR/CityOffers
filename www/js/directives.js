@@ -10,20 +10,25 @@ angular.module('starter.directives', [])
     link: function ($scope, $element, $attr) {
       function initialize() {
         var mapOptions = {
-       
+          center: new google.maps.LatLng(26.8333,63.2000),
+          zoom: 16,
+          mapTypeId: google.maps.MapTypeId.ROADMAP
         };
 		
-	
+		var infowindow = new google.maps.InfoWindow();
+
 		var area;
 		var city;
 		var address;
 
-  	
+        var map = new google.maps.Map($element[0], mapOptions);
+		
 		 
 		
    navigator.geolocation.getCurrentPosition(function(pos) {
 	   
-           
+            map.setCenter(new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude));
+			
 			 var latlng = new google.maps.LatLng(pos.coords.latitude, pos.coords.longitude);
 			var geocoder = new google.maps.Geocoder();
   geocoder.geocode({'latLng': latlng}, function(results, status) {
@@ -58,14 +63,19 @@ var t5=t3[1].short_name;
 				 
         });
 		
+        $scope.onCreate({map: map});
+
         // Stop the side bar from dragging when mousedown/tapdown on the map
-     
+        google.maps.event.addDomListener($element[0], 'mousedown', function (e) {
+          e.preventDefault();
+          return false;
+        });
       }
 
       if (document.readyState === "complete") {
         initialize();
       } else {
-       
+        google.maps.event.addDomListener(window, 'load', initialize);
       }
     }
   }
