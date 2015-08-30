@@ -3,13 +3,19 @@ angular.module('starter.controllers',[])
 .controller("ExampleController", function($scope, $cordovaSocialSharing,$cordovaSms,$ionicPopup,addOffer) {
  
  
+$scope.getTrustedResourceUrl = function(url){
+   return $sce.getTrustedResourceUrl(url)
+};
+ 
+  $scope.image2=[];
 
- 
- 
- 
    $scope.addoffers=[];
-addOffer.getOffers().then(function(data) {
-    $scope.addoffers = data.data;
+	addOffer.getOffers().then(function(data) {
+				$scope.addoffers = data.data;
+	
+ 
+ image2=data.data;
+ // window.alert("Welcome"+data.data);
 	//var urlSafeBase64EncodedString = encodeURIComponent(""+addoffers.offerimage);
 	//$scope.image1=urlSafeBase64EncodedString;
   });
@@ -58,7 +64,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
 })
 
 
-.controller('MapCtrl', function($base64,$scope ,$state, $ionicModal,$ionicPopup,$ionicPlatform,$cordovaSms, $cordovaFileTransfer,$ionicLoading,merchantRegisterFactory, $http, Camera, $fileFactory, $cordovaCamera, $cordovaFile) {
+.controller('MapCtrl', function($base64,$scope ,$timeout,$state, $ionicModal,$ionicPopup,$ionicPlatform,$cordovaSms, $cordovaFileTransfer,$ionicLoading,merchantRegisterFactory, $http, Camera, $fileFactory, $cordovaCamera, $cordovaFile) {
 	
 	/*This is for uploading image to server*/
 	
@@ -129,9 +135,18 @@ document.addEventListener("deviceready", onDeviceReady, false);
 	 $scope.closebrowse = function() {
     $scope.modal1.hide();
   };
+  
+   var onSuccess = function(FILE_URI) {
+        console.log(FILE_URI);
+        $scope.picData = FILE_URI;
+        $scope.$apply();
+    };
+    var onFail = function(e) {
+        console.log("On fail " + e);
+    }
  $scope.browse=function($event) {
 	
-		
+
 		 var uploadPopup = $ionicPopup.show({
         title: "Upload Ad picture",
         templateUrl: 'templates/explore1.html',
@@ -146,8 +161,9 @@ document.addEventListener("deviceready", onDeviceReady, false);
                  //   alert('Getting camera');
                      Camera.getPicture().then(function(imageURI) {
         console.log(imageURI);
+		   alert(imageURI);
         $scope.lastPhoto = imageURI;
-       // $scope.upload();
+	
     },
     function(err) {
         console.log(err);
@@ -156,7 +172,9 @@ document.addEventListener("deviceready", onDeviceReady, false);
         targetWidth: 320,
         targetHeight: 320,
         saveToPhotoAlbum: true,
-		destinationType: parent.window.Camera.DestinationType.DATA_URI
+		encodingType: 0,
+			saveToPhotoAlbum: true,
+		destinationType: navigator.camera.DestinationType.DATA_URL
     });
 
                 }
@@ -172,11 +190,15 @@ document.addEventListener("deviceready", onDeviceReady, false);
 						
         targetWidth: 320,
         targetHeight: 320,
-        destinationType: parent.window.Camera.DestinationType.DATA_URI,
-                        sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY
+	
+		encodingType: 0,
+       destinationType: navigator.camera.DestinationType.DATA_URL,
+                        sourceType: navigator.camera.PictureSourceType.SAVEDPHOTOALBUM
                     }).then(function(imageURI) {
                         alert(imageURI);
                         $scope.lastPhoto = imageURI;
+						
+       
                     }, function(err) {
                         alert(err);
                     });
@@ -185,8 +207,7 @@ document.addEventListener("deviceready", onDeviceReady, false);
         ]
     });
 		
-		
-    };
+ };
 
 
 
@@ -297,31 +318,23 @@ var image_upload_uri;
 	   $scope.loginData = {};
 	   
 	    var imageURI = $scope.lastPhoto;
-		/*var server = 'http://104.155.192.54:8080/api/file/upload/';
+	/*	var server = 'http://104.155.192.54:8080/api/file/upload/';
 		 if (server) {
         console.log("starting upload");
         // Specify transfer options
         var options = new FileUploadOptions();
         options.fileKey="file";
-        options.fileName=imageURI.substr(imageURI.lastIndexOf('/')+1);
+        options.fileName="test.jpg";//imageURI.substr(imageURI.lastIndexOf('/')+1);
         options.mimeType="image/jpeg";
        options.headers = {
     Connection: "close"
   }
-  options.chunkedMode = false;
+  //options.chunkedMode = false;
 
 
         // Transfer picture to server
         var ft = new FileTransfer();
-		ft.onprogress = function(progressEvent) {
-    if (progressEvent.lengthComputable) {
-      loadingStatus.setPercentage(progressEvent.loaded / progressEvent.total);
-    } else {
-      loadingStatus.increment();
-    }
-    colsole.log(progressEvent.loaded / progressEvent.total);
-  };
-
+		
         ft.upload(imageURI, server, function(r) {
             console.log("upload successful"+r.bytesSent+" bytes uploaded.");
             //document.getElementById('camera_status').innerHTML = "Upload successful: "+r.bytesSent+" bytes uploaded.";
@@ -330,33 +343,46 @@ var image_upload_uri;
             //document.getElementById('camera_status').innerHTML = "Upload failed: Code = "+error.code;
         }, options);
     }*/
-	  alert("This is in Map Control addoffer : "+$addOffer.shopname);
+	//  alert("This is in Map Control addoffer : "+$addOffer.shopname);
 	 /*Upload Image to node server */
-	  var options = {
-            fileKey: "offer",	
-            fileName: "offer_"+$addOffer.userid,
-        
-            mimeType: "image/jpeg"
-        };
-		
-		document.addEventListener('deviceready', function () {
+	
+	/*	var options = new FileUploadOptions();
 
-        $cordovaFileTransfer.upload("http://104.155.192.54:8080/api/file/upload/", $scope.lastPhoto, options).then(function(result) {
+		options.fileKey="pics";
+options.fileName="out1.jpg";
+options.mimeType="image/jpeg";
+ options.chunkedMode = false;
+        $cordovaFileTransfer.upload("http://104.155.192.54:8080/api/file/upload/", ""+$scope.lastPhoto, options).then(function(result) {
             console.log("SUCCESS: " + JSON.stringify(result.response));
         }, function(err) {
             console.log("ERROR: " + JSON.stringify(err));
         }, function (progress) {
-            // constant progress updates
-        });
-	  }, false);
-	 
+           $timeout(function () {
+          $scope.uploadProgress = (progress.loaded / progress.total) * 100;
+        })
+        });*/
+		// var base64EncodedString = $base64.encode(""+$scope.lastPhoto);
+		// alert("Recoded sucessfully in add offer BASE 64 data!"+base64EncodedString);
+
+		//var myImg = $scope.picData;
+      //  var options = new FileUploadOptions();
+       
+       // options.chunkedMode = false;
+        //var params = {};
+        //params.user_token = localStorage.getItem('auth_token');
+        //params.user_email = localStorage.getItem('email');
+        //options.params = params;
+      //  var ft = new FileTransfer();
+      //  ft.upload(myImg, encodeURI("http://104.155.192.54:8080/api/file/upload/"), ""+$scope.lastPhoto,  options);
+	  
 	/*This is for adding offers to database*/
 	 var now = new Date();
 //	 var base64Image = canvas.toDataURL( ""+$scope.imageURL );
-	   var base64EncodedString = $base64.encode(""+$scope.imageURI);
+//File imageFile = new File();
+	  
 //	var base64str = base64_encode(""+$scope.imageURI);
-  var blob_image=dataURItoBlob( $scope.lastPhoto);
-  console.log("Recoded sucessfully in add offer Blob data!"+blob_image);
+ // var blob_image=dataURItoBlob( $scope.lastPhoto);
+  console.log("Recoded sucessfully in add offer $SCOPE LASTPHOTO BASE 64 data!"+$scope.lastPhoto);
 				
         var headers = {
             'Access-Control-Allow-Origin' : '*',
@@ -364,18 +390,16 @@ var image_upload_uri;
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         };
-		
-		
 		return $http({
             method: "POST",
             headers: headers,
-      url: 'http://104.155.192.54:8080/api/addoffers',
+			url: 'http://104.155.192.54:8080/api/addoffers',
             data: {
         "loginid": $addOffer.userid,
         "offerarea": $addOffer.area,
 		"offershopname":$addOffer.shopname,
 		"offercategory":$addOffer.shopcat,
-		"offerimage":base64EncodedString,
+		"offerimage":$scope.lastPhoto,
 		"offerdetails":$addOffer.offerdetails,
 		"offerstartdate":$addOffer.offerstartdate,
 		"offerstarttime":$addOffer.offerstarttime,
@@ -386,55 +410,41 @@ var image_upload_uri;
 		"offercontact2":$addOffer.contact2,
 		"offerdate":now
 		
-      }
-    }).success(function(data) {
-                console.log("Recoded sucessfully in add offer success!");
-				  alert("Offer Added Sucessfully."+data);
+				}
+		}).success(function(data) {
+				console.log("Recoded sucessfully in add offer success!");
+				alert("Offer Added Sucessfully."+data);
 				//  $ionicHistory.clearCache();
 				 // $state.go('app.playlists');
 				 //  $urlRouterProvider.otherwise('/templates/playlists.html');
-        $scope.logins.push(data.data);
-		 // $scope.loginusername=profile.nickname;
-		
-	// $scope.modal.hide();
-     console.log(data);
+				$scope.logins.push(data.data);
+				// $scope.loginusername=profile.nickname;
+				// $scope.modal.hide();
+				console.log(data);
     }).error(function(data, status, headers, config) {
                 console.log("Auth.signin.error!");
 				alert(status);
-        console.log(data);
-        console.log(status);
-        console.log(headers);
-        console.log(config);
+				console.log(data);
+				console.log(status);
+				console.log(headers);
+				console.log(config);
     });
-	
-	
-	
-	
-	
-	
-	
 	};
-	
-
-	$http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
-	$scope.registermerchant=function($event){
-		
-		 console.log("This is in Map Control registermerchant");
-	
-	 var now = new Date();
-  
+		$scope.registermerchant=function($event){
+		console.log("This is in Map Control registermerchant");
+		var now = new Date();
+		$http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
         var headers = {
             'Access-Control-Allow-Origin' : '*',
             'Access-Control-Allow-Methods' : 'POST, GET, OPTIONS, PUT',
             'Content-Type': 'application/json',
             'Accept': 'application/json'
         };
-		
-		
+			
 		return $http({
             method: "POST",
             headers: headers,
-      url: 'http://104.155.192.54:8080/api/merchantlogins',
+		url: 'http://104.155.192.54:8080/api/merchantlogins',
             data: {
         "loginid": $scope.loginData.userid,
         "isActive": true,
@@ -445,69 +455,36 @@ var image_upload_uri;
 		"email":$scope.loginData.email,
 		"contact1":$scope.loginData.contact1,
 		"contact2":$scope.loginData.contact2
-      }
-    }).success(function(data) {
-                console.log("Recoded sucessfully in merchant login success!")
-				  alert(data);
-        $scope.logins.push(data.data);
-		  $scope.loginusername=$scope.loginData.username;
-		   $scope.isLogin=true;
-	 $scope.modal.hide();
-     console.log(data);
-    }).error(function(data, status, headers, config) {
+		}
+		}).success(function(data) {
+					console.log("Recoded sucessfully in merchant login success!")
+					alert(data);
+					$scope.logins.push(data.data);
+					$scope.loginusername=$scope.loginData.username;
+					$scope.isLogin=true;
+					$scope.modal.hide();
+					console.log(data);
+		}).error(function(data, status, headers, config) {
                 console.log("Auth.signin.error!")
 				alert(status);
-        console.log(data);
-        console.log(status);
-        console.log(headers);
-        console.log(config);
-    });
-	
-	
-	
-	
-	
-	
-	
-	
-		 merchantRegisterFactory.saveLogin({
-        "loginid": $scope.loginData.userid,
-        "isActive": true,
-		"password":$scope.loginData.pass,
-		"companyname":$scope.loginData.compname,
-		"area":window.localStorage['place.area.local'] ,
-		"city":window.localStorage['place.city.local'] ,
-		"email":$scope.loginData.email,
-		"contact1":$scope.loginData.contact1,
-		"contact2":$scope.loginData.contact2
-      }).then(function(data) {
-		  
-        $scope.logins.push(data.data);
-		//  $scope.loginusername=$scope.loginData.username;
-		   $scope.isLogin=true;
-		  
-		   	  window.localStorage['userid.local']= $scope.loginData.username;
-	
-		 $scope.modal.hide();
-      });
-		
-		alert('Registered Sucessfully');
+				console.log(data);
+				console.log(status);
+				console.log(headers);
+				console.log(config);
+			});
+				alert('Registered Sucessfully');
 		
 		
 		
 	
 		
-		};
-	
-	
-	
-	 $scope.logout = function() {
-	 
-    $scope.isLogin=false;
-  };
+			};
+		
+			$scope.logout = function() {
+											$scope.isLogin=false;
+										};
   
-  
-    })
+	})
  
  
  

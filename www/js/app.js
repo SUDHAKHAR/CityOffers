@@ -8,7 +8,14 @@
 angular.module('starter', ['ionic','base64', 'ngCordova', 'starter.controllers','starter.directives',  'auth0',
   'angular-storage',
   'angular-jwt', 'ngFileUpload','ngResource','ngRoute'])
+  
+.config(function($stateProvider, $urlRouterProvider, $compileProvider) {
 
+$compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image\//);
+ $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file):/);
+ console.log($compileProvider.imgSrcSanitizationWhitelist());
+
+})
 
 .config(['$httpProvider', function($httpProvider) {
         $httpProvider.defaults.useXDomain = true;
@@ -105,9 +112,7 @@ console.log("This is in file factory");
   return $resource('http://104.155.192.54:8080/api/logins');
 })
 
-.config(function($compileProvider){
-  $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|tel):/);
-})
+
 /*This is file browser in ionic */
 
 
@@ -186,6 +191,29 @@ console.log("This is in file factory");
   return _addofferService;
 })
 
+.factory('offerimage', function($http) {
+  var urlBase = 'http://104.155.192.54:8080/api/file/upload/';
+  var _addofferimageService = {};
+ 
+  _addofferimageService.getOfferimage = function() {
+    return $http.get(urlBase);
+  };
+ 
+  _addofferimageService.saveOfferimage = function(login) {
+	  console.log("This is factory is offer image in client app.js save");
+    return $http.post(urlBase,login);
+  };
+ 
+  _addofferimageService.updateofferimage = function(login) {
+    return $http.put(urlBase, login);
+  };
+ 
+  _addofferimageService.deleteOfferimage = function(id) {
+    return $http.delete(urlBase + '/' + id);
+  };
+ 
+  return _addofferimageService;
+})
 
 
 

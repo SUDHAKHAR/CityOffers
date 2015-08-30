@@ -9,22 +9,50 @@
     </author>
   <content src="index.html"/>
  <access origin=".*"/>
+ <access origin="cdvfile://*" /> 
+ 
   <access origin="http://104.155.192.54" />
- <allow-intent href="http://*/*"/>
-<allow-intent href="https://*/*"/>
+<!-- Allow links to web pages to open in a browser -->
+<allow-intent href="http://*/*" />
+<allow-intent href="https://*/*" />
+
+<!-- Allow links to example.com to open in a browser -->
+<allow-intent href="http://example.com/*" />
+
+<!-- Wildcards are allowed for the protocol, as a prefix
+     to the host, or as a suffix to the path -->
+<allow-intent href="*://*.example.com/*" />
+
+<!-- Allow SMS links to open messaging app -->
+<allow-intent href="sms:*" />
+
+<!-- Allow tel: links to open the dialer -->
+<allow-intent href="tel:*" />
+
+<!-- Allow geo: links to open maps -->
+<allow-intent href="geo:*" />
+
+<!-- Allow all unrecognized URLs to open installed apps
+     *NOT RECOMMENDED* -->
 <allow-intent href="*" />
    <allow-navigation href="*" />
    <allow-navigation href="http://*/*" />
    
+
+<allow-navigation href="https://*/*" />
+<allow-navigation href="data:*" />
    <allow-intent href="geo:*" />
    <allow-intent href="*" />
    <plugin name="File" value="org.apache.cordova.FileUtils" />
+   <plugin name="Notification" value="org.apache.cordova.Notification"/>
+   <plugin name="NetworkStatus" value="org.apache.cordova.NetworkManager" />
 <plugin name="FileTransfer" value="org.apache.cordova.FileTransfer" />
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
   <preference name="DisallowOverscroll" value="true"/>
   <preference name="BackupWebStorage" value="none"/>
   <preference name="SplashScreen" value="screen"/>
+  <preference name="AndroidPersistentFileLocation" value="Compatibility" />
   <preference name="SplashScreenDelay" value="3000"/>
   <feature name="InAppBrowser">
     <param name="ios-package" value="CDVInAppBrowser"/>
@@ -34,12 +62,10 @@
     <param name="ios-package" value="CDVStatusBar" onload="true"/>
   </feature>
   <feature name="Camera">
+  <param name="ios-package" value="CDVCamera" />
       <param name="android-package" value="org.apache.cordova.CameraLauncher" />
   </feature>
-  <feature name="InAppBrowser">
-  <param name="ios-package" value="CDVInAppBrowser" />
-  <param name="android-package" value="org.apache.cordova.InAppBrowser" />
-</feature>
+  
    <feature name="File">
       <param name="android-package" value="org.apache.cordova.FileUtils" />
   </feature>

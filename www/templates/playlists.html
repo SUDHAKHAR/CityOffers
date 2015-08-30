@@ -1,3 +1,4 @@
+<html><body>
 <ion-view  view-title="Lokal Offers" align-title="center">
    <ion-content >
 
@@ -13,12 +14,12 @@
     <p>{{addoffers.offershopname}}</p>
   </div>
  <div class="item item-body divouter" >
- <script>
-var img;
-base64_decode(addoffers.offerimage, img);
 
-</script>
-    <img ng-src={{base64_decode(addoffers.offerimage)}}>
+
+
+
+	
+	<img  alt='' ng-src="data:image/jpeg;base64,{{addoffers.offerimage}}" >
     <p>
      {{addoffers.offerdetails}}
     </p>
@@ -71,3 +72,4 @@ base64_decode(addoffers.offerimage, img);
   <div  class="button button-clear"style="font-size:60%">(R)Copy Rights Reserved @2015</div>
   <div  class="button button-clear" style="font-size:60%" >Developed by Devi Android Apps</div>
 </div>
+</body></html>
