@@ -10,7 +10,7 @@ angular.module('starter.directives', [])
     link: function ($scope, $element, $attr) {
       function initialize() {
         var mapOptions = {
-          center: new google.maps.LatLng(26.8333,63.2000),
+          center: new google.maps.LatLng(56.8333,73.2000),
           zoom: 16,
           mapTypeId: google.maps.MapTypeId.ROADMAP
         };

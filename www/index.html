@@ -3,13 +3,14 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-	<meta http-equiv="Content-Security-Policy" content="default-src *; img-src *; style-src * &apos;unsafe-inline&apos;; script-src * &apos;unsafe-inline&apos; &apos;unsafe-eval&apos; image-src 'self' data:;">
+	<meta http-equiv="Content-Security-Policy" content="default-src *; img-src *; style-src * &apos;unsafe-inline&apos;; script-src * &apos;unsafe-inline&apos; &apos;unsafe-eval&apos; image-src &apos;self&apos; data:;">
     <title></title>
     <!-- compiled css output -->
     <link href="css/ionic.app.css" rel="stylesheet">
 	<link href="css/animate.css" rel="stylesheet">
 	<link href="lib/ionic/css/ionic.css" rel="stylesheet">
 	<link href="css/style.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="css/style3.css" />
     <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above    -->
     <!-- <link href="css/ionic.app.css" rel="stylesheet">-->
 	<!-- ionic/angularjs js -->
@@ -38,7 +39,7 @@
 	<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC_cy8C8pj5urqUSWERE-qU8NmkoNg6jpk&amp;sensor=true"></script>
 	-->
     <!-- your app's js -->
-	<script  type="text/javascript" src="lib/angular-base64/angular-base64.js"></script>
+	<script type="text/javascript" src="lib/angular-base64/angular-base64.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
     <script type="text/javascript" src="js/app1.js"></script>
 	<script type="text/javascript" src="js/directives.js"></script>
@@ -48,7 +49,9 @@
 	<script type="text/javascript" src="js/factory.js"></script>
 	<script type="text/javascript" src="js/controllers.js"></script>
 	<script type="text/javascript" src="js/countries.js"></script>
+		<script type="text/javascript" src="js/geodata-jsr-class.js"></script>
 	<script type="text/javascript" charset="utf-8">
+
     // Wait for Cordova to load
     // 
     document.addEventListener("deviceready", onDeviceReady, false);
@@ -71,7 +74,14 @@
         states[Connection.CELL_4G]    = 'Cell 4G connection';
         states[Connection.NONE]       = 'No network connection';
 
-        alert('Connection type: ' + states[networkState]);
+      //  alert('Connection type: ' + states[networkState]);
+		
+		if(states[networkState]=='No network connection')
+		{
+				 alert('Please connect to internet');
+				cordova.plugins.diagnostic.switchToWifiSettings();//ionic.Platform.exitApp();
+alert('Connected to internet');
+		}
     }
 
     </script>
@@ -79,6 +89,7 @@
 
 	</head>
 	<body ng-app="starter">
+	
     <ion-nav-view></ion-nav-view>
 	</body>
 </html>

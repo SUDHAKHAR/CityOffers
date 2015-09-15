@@ -1,27 +1,19 @@
-<ion-side-menus enable-menu-with-back-views="false">
+<ion-side-menus enable-menu-with-back-views="true">
   <ion-side-menu-content>
   <ion-view  view-title="Lokal Offers" align="center">
 
    <ion-content >
-
-
     <ion-nav-bar class="bar-positive" ion-nav-bar-title="LokalOffers" align="center">
-     
- 
-      <ion-nav-buttons side="left">
-
-        <button class="button button-icon button-clear ion-navicon" menu-toggle="left"> </button>
+	     
+     	<ion-nav-buttons side="left">
+        <button class="button button-icon button-clear ion-navicon" menu-toggle="left"> </button>{{loginid.local}}
 		<button class="button button-icon button-clear "  ng-click="logout()" ng-hide="!isLogin"  menu-toggle="left" style="font-size:85%">Welcome {{loginusername}}</button>
- </ion-nav-buttons>
-
+		</ion-nav-buttons>
 		  <ion-nav-buttons side="right" >
- <button class="button button-icon button-clear "  ng-click="logout()" ng-hide="!isLogin" style="font-size:75%" menu-toggle="right"> Logout</button>
-  
-
-        <button class="button button-icon button-clear " ng-hide="isLogin" ng-click="login()" style="font-size:75%" menu-toggle="right">Login</button>
+			<button class="button button-icon button-clear "  ng-click="logout()" ng-hide="!isLogin" style="font-size:75%" menu-toggle="right"> Logout</button>
+			<button class="button button-icon button-clear " ng-hide="isLogin" ng-click="login()" style="font-size:75%" menu-toggle="right">Login</button>
 		  </ion-nav-buttons>
- 
-    </ion-nav-bar>
+     </ion-nav-bar>
     <ion-nav-view name="menuContent" ></ion-nav-view>
 	</ion-content>
 
@@ -30,7 +22,7 @@
   </ion-side-menu-content>
 
   <ion-side-menu side="left">
-    <ion-header-bar class="bar-positive" >
+    <ion-header-bar class="bar-stable" >
      
 
   <h2 class="title" style="font-size:80% align:center">LoKal Offers</h2>

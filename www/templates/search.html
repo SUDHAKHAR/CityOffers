@@ -1,22 +1,18 @@
-
- <ion-modal-view>
-  <ion-header-bar>
-  
+	<ion-modal-view>
+	<ion-header-bar>
     <h1 class="title">Register Merchant</h1>
     <div class="buttons">
       <button class="button button-clear" ng-click="closeregister()">Close</button>
     </div>
-  </ion-header-bar>
-
-   <ion-content scroll="true">
-      <div class="list">
-  <form ng-submit="registermerchant($event)">
-			 <label class="item item-input">
+	</ion-header-bar>
+	<ion-content scroll="true">
+		<div class="list">
+		<form ng-submit="registermerchant($event)">
+		  <label class="item item-input">
           <span class="input-label">UserId</span>
           <input type="text" id="loginData.userid" value="{{loginData.username}}" ng-model="loginData.userid"">
         </label>
-		
-			 <label class="item item-input">
+		<label class="item item-input">
           <span class="input-label">Password</span>
           <input type="password" id="loginData.pass" ng-model="loginData.pass" >
         </label>
@@ -24,7 +20,7 @@
           <span class="input-label">Re-Type Password</span>
           <input type="password" id="loginData.pass1" ng-model="loginData.pass1"  >
         </label>
-   <label class="item item-input">
+		<label class="item item-input">
           <span class="input-label">Company Name</span>
           <input type="text" id="loginData.compname" value="Devi Android Apps"  ng-model="loginData.compname" >
         </label>
@@ -38,46 +34,32 @@
         </label>
 		 <label class="item item-input">
           <span class="input-label">E-mail</span>
-          <input type="text" id="loginData.email" ng-model="loginData.email">
+          <input type="email" id="loginData.email" ng-model="loginData.email">
         </label>
 		 <label class="item item-input">
           <span class="input-label">Contact No.</span>
-          <input type="text" id="loginData.contact1" ng-model="loginData.contact1"  >
+          <input type="tel" id="loginData.contact1" ng-model="loginData.contact1"  >
         </label>
 		<label class="item item-input">
           <span class="input-label">Alternate No.</span>
-          <input type="text" id="loginData.contact2" 	ng-model="loginData.contact2">
+          <input type="tel" id="loginData.contact2" 	ng-model="loginData.contact2">
         </label>
-	
        <label class="item item-input">
           <button class="button button-block button-positive" type="submit">Register</button>
 		</label>
-  
-  
-  </form>
-   </div>
-
-	<div>Select Area</div>
-	
-
-     
-      <map on-create="mapCreated(map)"  ></map>
-    
-
-   <div>
-      <button ng-click="centerOnMe()" class="button button-icon icon ion-navigate">Show My Location</button>
-	  </div>
-	 <br> <br> <br>
-	
-   
-	  </ion-content>
-    
-	
+		</form>
+		</div>
+		<div>Select Area</div>
+			<map on-create="mapCreated(map)"></map>
+		<div>
+			<button ng-click="centerOnMe()" class="button button-icon icon ion-navigate">Show My Location</button>
+		</div>
+		<br> <br> <br> 
+ </ion-content>	
 	<div class="bar bar-footer bar-positive">
-  <button class="button button-clear"></button>
-  <div  class="button button-clear"style="font-size:60%">(R)Copy Rights Reserved @2015</div>
-  <button  class="button button-clear"style="font-size:75%" >Developed by Devi Android Apps</button>
-</div>
-  
+	<button class="button button-clear"></button>
+	<div  class="button button-clear"style="font-size:60%">(C)Copy Rights Reserved @2015</div>
+	<button  class="button button-clear"style="font-size:75%" >Developed by Devi Android Apps</button>
+	</div>
 </ion-modal-view>
 

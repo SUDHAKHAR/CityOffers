@@ -13,7 +13,7 @@ angular.module('starter', ['ionic','base64', 'ngCordova', 'starter.controllers',
 
 $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:image\//);
  $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file):/);
- console.log($compileProvider.imgSrcSanitizationWhitelist());
+ //console.log($compileProvider.imgSrcSanitizationWhitelist());
 
 })
 
@@ -28,13 +28,31 @@ $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:i
   $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|file|blob|cdvfile|content):|data:image\//);
 })
 
-
+.filter('reverse', function() {
+  return function(items) {
+    return items.slice().reverse();
+  };
+})
 
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
+	  if(window.Connection) {
+                if(navigator.connection.type == Connection.NONE) {
+                    $ionicPopup.confirm({
+                        title: "Internet Disconnected",
+                        content: "The internet is disconnected on your device."
+                    })
+                    .then(function(result) {
+                        if(!result) {
+						
+                          //  ionic.Platform.exitApp();
+                        }
+                    });
+                }
+            }
     if (window.cordova && window.cordova.plugins.Keyboard) {
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
     }
@@ -305,11 +323,6 @@ console.log("This is in file factory");
   
   
   $stateProvider
-
-  
-  
-  
-
   .state('app', {
     url: "/app",
     abstract: true,
@@ -321,17 +334,26 @@ console.log("This is in file factory");
     url: "/addoffer",
     views: {
       'menuContent': {
+	        templateUrl: "templates/merchantregister.html",
+			 controller: 'merchantregister'
+      }
+    }
+  })
+ .state('app.addoffer1', {
+    url: "/addoffer1",
+    views: {
+      'menuContent': {
 	        templateUrl: "templates/addoffer.html",
 			 controller: 'MapCtrl'
       }
     }
   })
-
   .state('app.browse', {
     url: "/browse",
     views: {
       'menuContent': {
-        templateUrl: "templates/browse.html"
+        templateUrl: "templates/browse.html",
+		 controller: 'MapCtrl'
       }
     }
   })
@@ -345,7 +367,16 @@ console.log("This is in file factory");
         }
       }
     })
-
+ .state('app.offerview', {
+		 cache: false,
+      url: "/offerview",
+      views: {
+        'menuContent': {
+          templateUrl: "templates/offerview.html",
+          controller: 'ExampleController'
+        }
+      }
+    })
   .state('app.single', {
 	  cache: false,
     url: "/playlists/:playlistId",

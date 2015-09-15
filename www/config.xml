@@ -10,7 +10,8 @@
   <content src="index.html"/>
  <access origin=".*"/>
  <access origin="cdvfile://*" /> 
- 
+ <access origin="tel:*" launch-external="yes" />
+<access origin="mailto:*" launch-external="yes" />
   <access origin="http://104.155.192.54" />
 <!-- Allow links to web pages to open in a browser -->
 <allow-intent href="http://*/*" />
@@ -43,6 +44,7 @@
 <allow-navigation href="data:*" />
    <allow-intent href="geo:*" />
    <allow-intent href="*" />
+   <plugin name="cordova.plugins.diagnostic" source="plugins.cordova.io" />
    <plugin name="File" value="org.apache.cordova.FileUtils" />
    <plugin name="Notification" value="org.apache.cordova.Notification"/>
    <plugin name="NetworkStatus" value="org.apache.cordova.NetworkManager" />
