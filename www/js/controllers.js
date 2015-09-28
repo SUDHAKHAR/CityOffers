@@ -164,7 +164,7 @@ $ionicLoading.show({
 			  if(logintemp==true)
 			  {
 				
-				alert("Login Success"); 
+			//	alert("Login Success"); 
 
 					
 	 window.localStorage['loginid.local']=sa1;
@@ -198,9 +198,18 @@ $scope.closeLogin=function(){
 
 })
 
-.controller("ExampleController", function($scope,$ionicLoading, $cordovaSocialSharing,$cordovaSms,$ionicPopup,addOffer) {
+.controller("ExampleController", function($scope,$ionicLoading,$cordovaCamera, $cordovaFile, $cordovaSocialSharing,$cordovaSms,$ionicPopup,addOffer) {
  
- 
+$scope.getRandomColor=function() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+	colsole.log("color random:"+color);
+	$scope.color=color;
+    return color;
+}
 $scope.getTrustedResourceUrl = function(url){
    return $sce.getTrustedResourceUrl(url)
 };
@@ -223,7 +232,7 @@ $scope.getTrustedResourceUrl = function(url){
 		$scope.uploadPopup = $ionicPopup.show({
         title: "Offer Details",
 		scope:$scope,//"templates/offerview.html",
-        template: '<html><h2 align="center">'+ addoffers.loginid+'</h2><h4 align="center">'+addoffers.offershopname+'</h4><div class="item item-body divouter" style="width:100%" ><img  ng-src="data:image/jpeg;base64,'+addoffers.offerimage+'" style="width:100%"><p align="center">'+addoffers.offerdetails+'</p><p align="center"><a href="tel:'+addoffers.offercontact1+'" class="subdued icon ion-ios-telephone">'+addoffers.offercontact1+'</a><br>  <a href="tel:'+addoffers.offercontact2+'" class="subdued icon ion-ios-telephone">'+addoffers.offercontact2+'</a><br> <a href="mailto:'+addoffers.offeremail+'" class="subdued icon ion-ios-email">'+addoffers.offeremail+'</a></p></div><div class=" item  tabs tabs-secondary tabs-icon-left  " style="background-color: #01D2FF;"><a class="tab-item" href="#"><i class="icon ion-thumbsup"></i>Like</a><a class="tab-item"  ><i class="icon ion-chatbox" value="Sms" ng-click="sendsms()"></i>Sms </a> <a class="tab-item"  ><i class="icon ion-share" value="Share" ng-click="shareAnywhere()"></i>Share Ad  </a>  </div><a class="item item-icon-left assertive" href="#" style="width:100%;background-color: #01D2FF;" ><i class="icon ion-music-note"></i>Listen to The Ad Audio</a></html>',
+        template:'<html><div  class="item item-avatar divouter" style="width:100%"><img ng-src="data:image/jpeg;base64,'+addoffers.offerlogo+'"><h2 align="center">'+ addoffers.loginid+'</h2><h4 align="center">'+addoffers.offershopname+'</h4></div><div class="item item-body divouter" style="width:100%" ><img  ng-src="data:image/jpeg;base64,'+addoffers.offerimage+'" style="width:100%"><p align="center">'+addoffers.offerdetails+'</p><p align="center"><a href="tel:'+addoffers.offercontact1+'" class="subdued icon ion-ios-telephone">'+addoffers.offercontact1+'</a><br>  <a href="tel:'+addoffers.offercontact2+'" class="subdued icon ion-ios-telephone">'+addoffers.offercontact2+'</a><br> <a href="mailto:'+addoffers.offeremail+'" class="subdued icon ion-ios-email">'+addoffers.offeremail+'</a></p></div><div class=" item  tabs tabs-secondary tabs-icon-left  " style="background-color: #01D2FF;"><a class="tab-item" href="#"><i class="icon ion-thumbsup"></i>Like</a><a class="tab-item"  ><i class="icon ion-chatbox" value="Sms" ng-click="sendsms()"></i>Sms </a> <a class="tab-item"  ><i class="icon ion-share" value="Share" ng-click="shareAnywhere()"></i>Share Ad  </a>  </div><a class="item item-icon-left assertive" href="#" style="width:100%;background-color: #01D2FF;" ><i class="icon ion-music-note"></i>Listen to The Ad Audio</a></html>',
         buttons: [{
              text: 'Close',
                 type: 'button class="button button-clear button-assertive"',
@@ -694,27 +703,7 @@ area_a[27]="Coming Shortly";
         }
 	
 	
-	/*This is for uploading image to server*/
 	
-	 $scope.upload2 = function($event) {
-		  console.log("This is in upload2 1");
-		 document.addEventListener("deviceready", function () {
-                var options = {
-                     quality: 75,
-        targetWidth: 320,
-        targetHeight: 320,
-                  //  destinationType: Camera.DestinationType.DATA_URL,
-                    sourceType: navigator.camera.PictureSourceType.PHOTOLIBRARY,
-                    allowEdit: false,
-                    saveToPhotoAlbum: false
-                };
-                $cordovaCamera.getPicture(options).then(function (imageData) {
-                    $scope.image = "data:image/png;base64," + imageData;
-                }, function (err) {
-                    // error
-                });
-            }	, false);
-    };
  
 	
 	
@@ -769,8 +758,7 @@ area_a[27]="Coming Shortly";
     }
  $scope.browse=function($event) {
 	
-
-		 var uploadPopup = $ionicPopup.show({
+	 var uploadPopup = $ionicPopup.show({
         title: "Upload Ad picture",
         templateUrl: 'templates/explore1.html',
         buttons: [
@@ -778,75 +766,61 @@ area_a[27]="Coming Shortly";
                 text: '',
                 type: 'button button-icon icon ion-ios-camera',
                 onTap: function(e) {
-
-                    // e.preventDefault() will stop the popup from closing when tapped.
-                 //   e.preventDefault();
-                 //   alert('Getting camera');
-                     Camera.getPicture({
-                        quality: 75,
-						
-        targetWidth: 320,
-        targetHeight: 320,
-	saveToPhotoAlbum: true,
-		encodingType: 0,
-		
-       destinationType: navigator.camera.DestinationType.DATA_URL,
-                     
-                    }).then(function(imageURI) {
-        console.log(imageURI);
-		  // alert(imageURI);
-        $scope.lastPhoto = imageURI;
-	
-    },
-    function(err) {
-        console.log(err);
-    }, {
-        quality: 75,
-        targetWidth: 320,
-        targetHeight: 320,
-        saveToPhotoAlbum: true,
-		encodingType: 0,
-		
-		destinationType: navigator.camera.DestinationType.DATA_URL
-    });
-
+ var options = { 
+            quality : 75, 
+			saveToPhotoAlbum: true,
+           destinationType : 0, 
+           // sourceType : Camera.PictureSourceType.CAMERA, 
+            allowEdit : true,
+            encodingType:  0,
+            targetWidth: 300,
+            targetHeight: 300
+          //  popoverOptions:  CameraPopoverOptions,
+            
+        };
+ 
+        $cordovaCamera.getPicture(options).then(function(imageData) {
+            $scope.lastPhoto =imageData;
+			window.imageResizer.storeImage(successCallBack, failCallBack, imageData, options);
+        }, function(err) {	alert(err);
+            // An error occured. Show a message to the user
+        })
                 }
             },
             {
                 text: 'From gallery',
                 type: 'button button-positive',
                 onTap: function(e) {
-                  //  e.preventDefault();
-               //     alert('Getting gallery');
-                    Camera.getPicture({
-                        quality: 75,
-						
-        targetWidth: 320,
-        targetHeight: 320,
-	
-		encodingType: 0,
-       destinationType: navigator.camera.DestinationType.DATA_URL,
-                        sourceType: navigator.camera.PictureSourceType.SAVEDPHOTOALBUM
-                    }).then(function(imageURI) {
-                     //   alert(imageURI);
-                        $scope.lastPhoto = imageURI;
-						
-       
-                    }, function(err) {
-                        alert(err);
-                    });
+                   var options = { 
+            quality : 75, 
+            destinationType :  0, 
+            sourceType :  2, 
+            allowEdit : true,
+            encodingType:  0,
+			saveToPhotoAlbum: true,
+            targetWidth: 300,
+            targetHeight: 300
+           // popoverOptions:  $cordovaCameraPopoverOptions,
+            };
+ 
+        $cordovaCamera.getPicture(options).then(function(imageData) {
+            $scope.lastPhoto = imageData;
+        }, function(err) {
+			alert(err);
+            // An error occured. Show a message to the user
+        })
                 }
             }
         ]
-    });
+    })
 		
- };
+ }
 
 
  $scope.browse_logo=function($event) {
 	
 
-		 var uploadPopup = $ionicPopup.show({
+	 var uploadPopup = $ionicPopup.show({
         title: "Upload Ad picture",
         templateUrl: 'templates/explore1.html',
         buttons: [
@@ -854,70 +828,57 @@ area_a[27]="Coming Shortly";
                 text: '',
                 type: 'button button-icon icon ion-ios-camera',
                 onTap: function(e) {
-
-                    // e.preventDefault() will stop the popup from closing when tapped.
-                 //   e.preventDefault();
-                 //   alert('Getting camera');
-                     Camera.getPicture({
-                        quality: 75,
-						
-        targetWidth: 320,
-        targetHeight: 320,
-	saveToPhotoAlbum: true,
-		encodingType: 0,
-		
-       destinationType: navigator.camera.DestinationType.DATA_URL,
-                     
-                    }).then(function(imageURI) {
-        console.log(imageURI);
-		   //alert(imageURI);
-        $scope.logoPhoto = imageURI;
-	
-    },
-    function(err) {
-        console.log(err);
-    }, {
-        quality: 75,
-        targetWidth: 320,
-        targetHeight: 320,
-        saveToPhotoAlbum: true,
-		encodingType: 0,
-		
-		destinationType: navigator.camera.DestinationType.DATA_URL
-    });
-
+ var options = { 
+            quality : 75, 
+           destinationType : 0, 
+           // sourceType : Camera.PictureSourceType.CAMERA, 
+            allowEdit : true,
+            encodingType:  0,
+			saveToPhotoAlbum: true,
+            targetWidth: 300,
+            targetHeight: 300
+          //  popoverOptions:  CameraPopoverOptions,
+            
+        };
+ 
+        $cordovaCamera.getPicture(options).then(function(imageData) {
+            $scope.logoPhoto =imageData;
+        }, function(err) {	alert(err);
+            // An error occured. Show a message to the user
+        })
                 }
             },
             {
                 text: 'From gallery',
                 type: 'button button-positive',
                 onTap: function(e) {
-                  //  e.preventDefault();
-               //     alert('Getting gallery');
-                    Camera.getPicture({
-                        quality: 75,
-						
-        targetWidth: 320,
-        targetHeight: 320,
-	
-		encodingType: 0,
-       destinationType: navigator.camera.DestinationType.DATA_URL,
-                        sourceType: navigator.camera.PictureSourceType.SAVEDPHOTOALBUM
-                    }).then(function(imageURI) {
-                        //alert(imageURI);
-                        $scope.logoPhoto = imageURI;
-						
-       
-                    }, function(err) {
-                        alert(err);
-                    });
+                   var options = { 
+            quality : 75, 
+            destinationType :  0, 
+            sourceType :  2, 
+			saveToPhotoAlbum: true,
+            allowEdit : true,
+            encodingType:  0,
+            targetWidth: 300,
+            targetHeight: 300
+           // popoverOptions:  $cordovaCameraPopoverOptions,
+            
+        };
+ 
+        $cordovaCamera.getPicture(options).then(function(imageData) {
+            $scope.logoPhoto = imageData;
+        }, function(err) {
+			alert(err);
+            // An error occured. Show a message to the user
+        })
                 }
             }
         ]
-    });
+    })
 		
- };
+ }
 
+ 
 	
 	
 			
@@ -1072,7 +1033,7 @@ var image_upload_uri;
 		"contact2":$scope.loginData.contact2
 		}
 		}).success(function(data) {
-					console.log("Recoded sucessfully in merchant login success!")
+					console.log("Recoded sucessfully in merchant login success!");
 					//alert(data);
 					alert('Registered Sucessfully');
 					$scope.logins.push(data.data);
@@ -1108,6 +1069,10 @@ var image_upload_uri;
  
  
 .controller('AppCtrl', function($scope, auth,store,$location, $ionicModal, $timeout,loginsFactory, $ionicLoading, $http,Post) {
+	
+
+	
+	
 	
 	  
     //$scope.modal.show();

@@ -33,8 +33,129 @@ $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:i
     return items.slice().reverse();
   };
 })
+/*.run(function($cordovaPush,$ionicPlatform,$rootScope) {
+  var androidConfig = {
+    "senderID": "642544895754",
+  };
+
+  $ionicPlatform.ready(function($ionicUser){
+	  
+	// Identifies a user with the Ionic User service
+ 
+   
+
+ 
+	  
+	  var user = $ionicUser.get();
+	
+    if(!user.user_id) {
+      // Set your user_id here, or generate a random one.
+      user.user_id = $ionicUser.generateGUID();
+	  $scope.userid_push=$ionicUser.generateGUID();
+    };
+
+    // Add some metadata to your user object.
+    angular.extend(user, {
+      name: ''+$scope.loginusername,
+      bio: 'I come from planet Ion'
+    });
+
+    // Identify your user with the Ionic User Service
+    $ionicUser.identify(user).then(function(){
+      $scope.identified = true;
+    //  alert('Identified user ' + user.name + '\n ID ' + user.user_id);
+	  console.log("User id:"+user.user_id);
+    });
+  
+	
+	  
+    $cordovaPush.register(androidConfig).then(function(result) {
+      // Success
+	  alert("Inside cordovapush");
+
+    }, function(err) {
+      // Error
+    })
+
+    $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
+      switch(notification.event) {
+        case 'registered':
+          if (notification.regid.length > 0 ) {
+            alert('registration ID = ' + notification.regid);
+          }
+          break;
+
+        case 'message':
+          // this is the actual push notification. its format depends on the data model from the push server
+          alert('message = ' + notification.message + ' msgCount = ' + notification.msgcnt);
+          break;
+
+        case 'error':
+          alert('GCM error = ' + notification.msg);
+          break;
+
+        default:
+          alert('An unknown GCM event has occurred');
+          break;
+      }
+    });
 
 
+  
+
+  })
+})
+*/
+
+
+
+.run(function($cordovaPush,$rootScope) {
+
+  var androidConfig = {
+    "senderID": "642544895754",
+  };
+
+  document.addEventListener("deviceready", function(){
+    $cordovaPush.register(androidConfig).then(function(result) {
+      // Success
+    }, function(err) {
+      // Error
+    })
+
+    $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
+      switch(notification.event) {
+        case 'registered':
+          if (notification.regid.length > 0 ) {
+            alert('registration ID = ' + notification.regid);
+			console.log("Registration id:"+notification.regid);
+          }
+          break;
+
+        case 'message':
+          // this is the actual push notification. its format depends on the data model from the push server
+          alert('message = ' + notification.message + ' msgCount = ' + notification.msgcnt);
+          break;
+
+        case 'error':
+          alert('GCM error = ' + notification.msg);
+          break;
+
+        default:
+          alert('An unknown GCM event has occurred');
+          break;
+      }
+    });
+
+
+    // WARNING: dangerous to unregister (results in loss of tokenID)
+  /*  $cordovaPush.unregister(options).then(function(result) {
+      // Success!
+    }, function(err) {
+      // Error
+    })*/
+
+  }, false);
+})
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -53,6 +174,8 @@ $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:i
                     });
                 }
             }
+			
+			
     if (window.cordova && window.cordova.plugins.Keyboard) {
       cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
     }
@@ -367,16 +490,7 @@ console.log("This is in file factory");
         }
       }
     })
- .state('app.offerview', {
-		 cache: false,
-      url: "/offerview",
-      views: {
-        'menuContent': {
-          templateUrl: "templates/offerview.html",
-          controller: 'ExampleController'
-        }
-      }
-    })
+
   .state('app.single', {
 	  cache: false,
     url: "/playlists/:playlistId",

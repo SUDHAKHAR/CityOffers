@@ -11,8 +11,8 @@
             <h3>Loading Offers..</h3>
         </div>
 		
-		<a ng-repeat="addoffers in addoffers|reverse " class="item item-thumbnail-left"  ng-Click="onClickoffermain($event,addoffers ) ">
-   <img  alt='' ng-src="data:image/jpeg;base64,{{addoffers.offerimage}}" >
+		<a ng-repeat="addoffers in addoffers|reverse " class="item item-thumbnail-left" style="background-color: #"+{{("0" + (Math.random()*256|0).toString(16)).substr(-2)}}+";"  ng-Click="onClickoffermain($event,addoffers ) ">
+   <img   ng-src="data:image/jpeg;base64,{{addoffers.offerimage}}"  style="height:100%;width:50%;">
      <h2 class="animated tada" align="center">{{addoffers.loginid}}</h2>
      <p>{{addoffers.offershopname}}</p>
 	  <p>

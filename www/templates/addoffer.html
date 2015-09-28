@@ -10,12 +10,11 @@
   <ion-content >
 	
 	<br><br><br>
-  <form  align="right">
-  <div class="list" style="text-align:left;border:0px solid; margin:0 auto;width:90%; ">
+  <form  name="addOfferForm" novalidate >
  
-			 <label class="item item-input">
-				<span class="input-label">UserId</span>
-				<input type="text" id="addOffer.userid" value="{{addOffer.userid}}" ng-model="addOffer.userid">
+			  <label class="item item-input" ng-class="{ 'has-errors' : addOfferForm.ouserid.$invalid && !addOfferForm.ouserid.$pristine, 'no-errors' : addOfferForm.ouserid.$valid}">
+           	<span class="input-label">UserId</span>
+				<input type="text" name="ouserid" value="{{loginData.username}}" ng-model="addOffer.userid" required>
 			</label>
 			<label class="item item-input">
 				<span class="input-label">Country</span>
@@ -33,9 +32,9 @@
 				<span class="input-label">Area</span>
 				<select ng-model="addoffer.area" name ="area"style="width:40%; " id ="area"  ></select>
 			</label>
-			<label class="item item-input">
-				<span class="input-label">Shop Name</span>
-				<input type="text" id="addOffer.shopname" value="{{addOffer.shopname}}" ng-model="addOffer.shopname"  >
+			  <label class="item item-input" ng-class="{ 'has-errors' : addOfferForm.oshopname.$invalid && !addOfferForm.oshopname.$pristine, 'no-errors' : addOfferForm.oshopname.$valid}">
+           	<span class="input-label">Shop Name</span>
+				<input type="text" name="oshopname" ng-model="addOffer.shopname" required >
 			</label>
 			<label class="item item-input">
 				<span class="input-label">Upload Company Logo</span>
@@ -55,9 +54,9 @@
 			<label class="item">
 				<img ng-src="data:image/jpeg;base64,{{lastPhoto}}" style="max-width: 100%"> 
 			</label>
-			<label class="item item-input">
-				<span class="input-label">Offer Details</span>
-				<input type="text" id="oofferdetails"  ng-model="addOffer.offerdetails">
+			  <label class="item item-input" ng-class="{ 'has-errors' : addOfferForm.oofferdetails.$invalid && !addOfferForm.oofferdetails.$pristine, 'no-errors' : addOfferForm.oofferdetails.$valid}">
+          	<span class="input-label">Offer Details</span>
+				<input type="text" name="oofferdetails"  ng-model="addOffer.offerdetails" ng-minlength='20' ng-maxlength='300' required>
 			</label>
 			
 			<label class="item item-input">
@@ -70,23 +69,23 @@
 				<input type="date"   ng-model="addOffer.offerenddate" ><br>
 				<input type="time"  placeholder="12:00:AM" ng-model="addOffer.offerendtime" > 
 			</label>
-			<label class="item item-input">
-				<span class="input-label">E-mail</span>
-				<input type="email" value="{{addOffer.email}}" ng-model="addOffer.email">
+			 <label class="item item-input" ng-class="{ 'has-errors' : addOfferForm.email.$invalid && !addOfferForm.email.$pristine, 'no-errors' : addOfferForm.email.$valid}">
+          		<span class="input-label">E-mail</span>
+				<input type="email" name="email" ng-model="addOffer.email" reqiured>
 			</label>
-			<label class="item item-input">
-				<span class="input-label">Contact No.</span>
-				<input type="tel" value="{{addOffer.contact1}}" ng-model="addOffer.contact1"  >
+			<label class="item item-input" ng-class="{ 'has-errors' : addOfferForm.contact1.$invalid && !addOfferForm.contact1.$pristine, 'no-errors' : addOfferForm.contact1.$valid}">
+          		<span class="input-label">Contact No.</span>
+				<input type="tel" name="contact1" ng-model="addOffer.contact1"  required>
 			</label>
-			<label class="item item-input">
-				<span class="input-label">Alternate No.</span>
-				<input type="tel" value="{{addOffer.contact2}}"	ng-model="addOffer.contact2">
+			<label class="item item-input" ng-class="{ 'has-errors' : addOfferForm.contact2.$invalid && !addOfferForm.contact2.$pristine, 'no-errors' : addOfferForm.contact2.$valid}">
+          	<span class="input-label">Alternate No.</span>
+				<input type="tel" name="contact2"	ng-model="addOffer.contact2" required>
 			</label>
-			<label class="item item-input">
-				<button class="button button-block button-positive" ng-click="addoffer_new($event,addOffer)" type="submit">Add Offer</button>
-			</label>
-   </div>
-   <br><br><br>
+			
+				<button class="button button-block button-positive" ng-disabled="addOfferForm.$invalid" ng-click="addoffer_new($event,addOffer)" type="submit">Add Offer</button>
+			
+  
+  
    </form>
    <br><br><br>
    <div>Select Area</div>

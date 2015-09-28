@@ -8,7 +8,7 @@
       Ionic Framework Team&#xD;
     </author>
   <content src="index.html"/>
- <access origin=".*"/>
+ <access origin="*"/>
  <access origin="cdvfile://*" /> 
  <access origin="tel:*" launch-external="yes" />
 <access origin="mailto:*" launch-external="yes" />
@@ -44,11 +44,11 @@
 <allow-navigation href="data:*" />
    <allow-intent href="geo:*" />
    <allow-intent href="*" />
-   <plugin name="cordova.plugins.diagnostic" source="plugins.cordova.io" />
-   <plugin name="File" value="org.apache.cordova.FileUtils" />
-   <plugin name="Notification" value="org.apache.cordova.Notification"/>
+     <plugin name="Notification" value="org.apache.cordova.Notification"/>
    <plugin name="NetworkStatus" value="org.apache.cordova.NetworkManager" />
-<plugin name="FileTransfer" value="org.apache.cordova.FileTransfer" />
+   <plugin name="Camera" value="org.apache.cordova.CameraLauncher" />
+   <preference name="AndroidPersistentFileLocation" value="Compatibility" />
+   <preference name="AndroidExtraFilesystems" value="files,files-external,documents,sdcard,cache,cache-external,root" />
   <preference name="webviewbounce" value="false"/>
   <preference name="UIWebViewBounce" value="false"/>
   <preference name="DisallowOverscroll" value="true"/>
@@ -68,12 +68,7 @@
       <param name="android-package" value="org.apache.cordova.CameraLauncher" />
   </feature>
   
-   <feature name="File">
-      <param name="android-package" value="org.apache.cordova.FileUtils" />
-  </feature>
-  <feature name="FileTransfer">
-      <param name="android-package" value="org.apache.cordova.FileTransfer" />
-  </feature>
+  
   <platform name="android">
     <icon src="resources/android/icon/drawable-ldpi-icon.png" density="ldpi"/>
     <icon src="resources/android/icon/drawable-mdpi-icon.png" density="mdpi"/>
