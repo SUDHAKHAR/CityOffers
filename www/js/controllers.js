@@ -1072,7 +1072,7 @@ var image_upload_uri;
 	
 
 	
-	$http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+	
  var user = $ionicUser.get();
  if(!user.user_id) {
  // Set your user_id here, or generate a random one.
