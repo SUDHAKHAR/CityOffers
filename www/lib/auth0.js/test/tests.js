@@ -14,6 +14,49 @@ describe('Auth0', function () {
     global.window.location.hash = '';
   });
 
+  it('has a semver tag', function (done) {
+    expect(Auth0.version).to.be.a('string');
+    done();
+  });
+
+  it('has a client information', function (done) {
+    expect(Auth0.clientInfo).to.be.a('object');
+    done();
+  });
+
+  it('sends client information by default', function (done) {
+    var auth0 = new Auth0({
+      clientID:     'aaaabcdefgh',
+      callbackURL: 'https://myapp.com/callback',
+      domain:       'aaa.auth0.com'
+    });
+
+    auth0._redirect = function (the_url) {
+      expect(the_url).to.contain('auth0Client');
+    };
+
+    auth0.login({});
+
+    done();
+  });
+
+  it('should not send client information when disabled', function (done) {
+    var auth0 = new Auth0({
+      clientID:     'aaaabcdefgh',
+      callbackURL: 'https://myapp.com/callback',
+      domain:       'aaa.auth0.com',
+      sendSDKClientInfo: false
+    });
+
+    auth0._redirect = function (the_url) {
+      expect(the_url).to.not.contain('auth0Client');
+    };
+
+    auth0.login({});
+
+    done();
+  });
+
   it('should fail if auth0.login is called with {popup: true, callbackOnLocationHash: true} and without callback', function () {
     var auth0 = new Auth0({
       clientID:    'aaaabcdefgh',
@@ -248,6 +291,23 @@ describe('Auth0', function () {
         connection: 'google-oauth2'
       });
     });
+
+    it('contains client version information within authorize redirection url', function (done) {
+      var auth0 = new Auth0({
+        clientID:     'aaaabcdefgh',
+        callbackURL: 'https://myapp.com/callback',
+        domain:       'aaa.auth0.com'
+      });
+
+      auth0._redirect = function (url) {
+        expect(url).to.contain('auth0Client=');
+        done();
+      };
+
+      auth0.login({
+        connection: 'google-oauth2'
+      });
+    })
   });
 
   describe('parseHash', function () {

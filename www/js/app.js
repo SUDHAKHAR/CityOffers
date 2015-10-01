@@ -5,9 +5,10 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic','base64', 'ngCordova', 'starter.controllers','starter.directives',  'auth0',
+angular.module('starter', ['ionic','ionic.service.core','base64', 'ngCordova', 'starter.controllers','starter.directives',  'auth0',
   'angular-storage',
-  'angular-jwt', 'ngFileUpload','ngResource','ngRoute'])
+  'angular-jwt', 'ngFileUpload','ngResource','ngRoute','ionic.service.core',
+  'ionic.service.push'])
   
 .config(function($stateProvider, $urlRouterProvider, $compileProvider) {
 
@@ -16,6 +17,14 @@ $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:i
  //console.log($compileProvider.imgSrcSanitizationWhitelist());
 
 })
+
+.config(['$ionicAppProvider', function($ionicAppProvider) {
+  $ionicAppProvider.identify({
+    app_id: '828c0033',
+    api_key: 'a7ff9963180ebcfcb5790789ac87ccdb40afbe419f494c78',
+    dev_push: true
+  });
+}])
 
 .config(['$httpProvider', function($httpProvider) {
         $httpProvider.defaults.useXDomain = true;
@@ -33,129 +42,9 @@ $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:i
     return items.slice().reverse();
   };
 })
-/*.run(function($cordovaPush,$ionicPlatform,$rootScope) {
-  var androidConfig = {
-    "senderID": "642544895754",
-  };
-
-  $ionicPlatform.ready(function($ionicUser){
-	  
-	// Identifies a user with the Ionic User service
- 
-   
-
- 
-	  
-	  var user = $ionicUser.get();
-	
-    if(!user.user_id) {
-      // Set your user_id here, or generate a random one.
-      user.user_id = $ionicUser.generateGUID();
-	  $scope.userid_push=$ionicUser.generateGUID();
-    };
-
-    // Add some metadata to your user object.
-    angular.extend(user, {
-      name: ''+$scope.loginusername,
-      bio: 'I come from planet Ion'
-    });
-
-    // Identify your user with the Ionic User Service
-    $ionicUser.identify(user).then(function(){
-      $scope.identified = true;
-    //  alert('Identified user ' + user.name + '\n ID ' + user.user_id);
-	  console.log("User id:"+user.user_id);
-    });
-  
-	
-	  
-    $cordovaPush.register(androidConfig).then(function(result) {
-      // Success
-	  alert("Inside cordovapush");
-
-    }, function(err) {
-      // Error
-    })
-
-    $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
-      switch(notification.event) {
-        case 'registered':
-          if (notification.regid.length > 0 ) {
-            alert('registration ID = ' + notification.regid);
-          }
-          break;
-
-        case 'message':
-          // this is the actual push notification. its format depends on the data model from the push server
-          alert('message = ' + notification.message + ' msgCount = ' + notification.msgcnt);
-          break;
-
-        case 'error':
-          alert('GCM error = ' + notification.msg);
-          break;
-
-        default:
-          alert('An unknown GCM event has occurred');
-          break;
-      }
-    });
-
-
-  
-
-  })
-})
-*/
 
 
 
-.run(function($cordovaPush,$rootScope) {
-
-  var androidConfig = {
-    "senderID": "642544895754",
-  };
-
-  document.addEventListener("deviceready", function(){
-    $cordovaPush.register(androidConfig).then(function(result) {
-      // Success
-    }, function(err) {
-      // Error
-    })
-
-    $rootScope.$on('$cordovaPush:notificationReceived', function(event, notification) {
-      switch(notification.event) {
-        case 'registered':
-          if (notification.regid.length > 0 ) {
-            alert('registration ID = ' + notification.regid);
-			console.log("Registration id:"+notification.regid);
-          }
-          break;
-
-        case 'message':
-          // this is the actual push notification. its format depends on the data model from the push server
-          alert('message = ' + notification.message + ' msgCount = ' + notification.msgcnt);
-          break;
-
-        case 'error':
-          alert('GCM error = ' + notification.msg);
-          break;
-
-        default:
-          alert('An unknown GCM event has occurred');
-          break;
-      }
-    });
-
-
-    // WARNING: dangerous to unregister (results in loss of tokenID)
-  /*  $cordovaPush.unregister(options).then(function(result) {
-      // Success!
-    }, function(err) {
-      // Error
-    })*/
-
-  }, false);
-})
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -171,7 +60,8 @@ $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:i
 						
                           //  ionic.Platform.exitApp();
                         }
-                    });
+                    })
+
                 }
             }
 			
@@ -183,11 +73,13 @@ $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|file|blob):|data:i
       // org.apache.cordova.statusbar required
       StatusBar.styleDefault();
     }
-  });
+  }) 
 })
- 
 
  
+ 
+ 
+
 /*File factory for browse*/
 .factory("$fileFactory", function($q) {
 

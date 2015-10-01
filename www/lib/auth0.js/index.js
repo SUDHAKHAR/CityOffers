@@ -2,8 +2,8 @@
  * Module dependencies.
  */
 
+var Base64Url         = require('./lib/base64_url');
 var assert_required   = require('./lib/assert_required');
-var base64_url_decode = require('./lib/base64_url_decode');
 var is_array          = require('./lib/is-array');
 
 var qs                = require('qs');
@@ -149,12 +149,14 @@ function Auth0 (options) {
 
   this._clientID = options.clientID;
   this._callbackURL = options.callbackURL || document.location.href;
+  this._shouldRedirect = !!options.callbackURL;
   this._domain = options.domain;
   this._callbackOnLocationHash = false || options.callbackOnLocationHash;
   this._cordovaSocialPlugins = {
     facebook: this._phonegapFacebookLogin
   };
   this._useCordovaSocialPlugins = false || options.useCordovaSocialPlugins;
+  this._sendClientInfo = null != options.sendSDKClientInfo ? options.sendSDKClientInfo : true;
 }
 
 /**
@@ -163,7 +165,17 @@ function Auth0 (options) {
  * @property {String} version
  */
 
-Auth0.version = require('package.version');
+Auth0.version = require('./version.json').version;
+
+/**
+ * Export client info object
+ *
+ *
+ * @property {Hash}
+ */
+
+Auth0.clientInfo = { name: 'auth0.js', version: Auth0.version };
+
 
 /**
  * Redirect current location to `url`
@@ -184,6 +196,17 @@ Auth0.prototype._getCallbackOnLocationHash = function(options) {
 Auth0.prototype._getCallbackURL = function(options) {
   return (options && typeof options.callbackURL !== 'undefined') ?
     options.callbackURL : this._callbackURL;
+};
+
+Auth0.prototype._getClientInfoString = function () {
+  var clientInfo = JSON.stringify(Auth0.clientInfo);
+  return Base64Url.encode(clientInfo);
+};
+
+Auth0.prototype._getClientInfoHeader = function () {
+  return {
+    'Auth0-Client': this._getClientInfoString()
+  };
 };
 
 /**
@@ -242,7 +265,7 @@ Auth0.prototype._getUserInfo = function (profile, id_token, callback) {
   }
 
   // the scope was just openid
-  var self = this;
+  var _this = this;
   var protocol = 'https:';
   var domain = this._domain;
   var endpoint = '/tokeninfo';
@@ -266,7 +289,7 @@ Auth0.prototype._getUserInfo = function (profile, id_token, callback) {
 
       return resp.status === 200 ?
         callback(null, resp.user) :
-        fail(resp.status, resp.error);
+        fail(resp.status, resp.err || resp.error);
     });
   }
 
@@ -361,7 +384,7 @@ Auth0.prototype.validateUser = function (options, callback) {
 
 Auth0.prototype.decodeJwt = function (jwt) {
   var encoded = jwt && jwt.split('.')[1];
-  return json_parse(base64_url_decode(encoded));
+  return json_parse(Base64Url.decode(encoded));
 };
 
 /**
@@ -448,18 +471,17 @@ Auth0.prototype.parseHash = function (hash) {
  */
 
 Auth0.prototype.signup = function (options, callback) {
-  var self = this;
+  var _this = this;
 
-  var query = xtend(
-    this._getMode(options),
-    options,
-    {
-      client_id: this._clientID,
-      redirect_uri: this._getCallbackURL(options),
-      username: trim(options.username || ''),
-      email: trim(options.email || options.username || ''),
-      tenant: this._domain.split('.')[0]
-    });
+  var opts = {
+    client_id: this._clientID,
+    redirect_uri: this._getCallbackURL(options),
+    username: trim(options.username || ''),
+    email: trim(options.email || options.username || ''),
+    tenant: this._domain.split('.')[0]
+  };
+
+  var query = xtend(this._getMode(options), options, opts);
 
   this._configureOfflineMode(query);
 
@@ -469,37 +491,41 @@ Auth0.prototype.signup = function (options, callback) {
     options.sso = true;
   }
 
-  var popup;
-
-  if (options.popup  && !this._getCallbackOnLocationHash(options)) {
-    popup = this._buildPopupWindow(options);
+  if (!checkIfSet(options, 'auto_login')) {
+    options.auto_login = true;
   }
 
-  if (options.popup  && options.sso) {
+  var popup;
+
+  var will_popup = options.auto_login && options.popup
+    && (!this._getCallbackOnLocationHash(options) || options.sso);
+
+  if (will_popup) {
     popup = this._buildPopupWindow(options);
   }
 
   function success () {
-    if (popup && popup.kill) {
-      popup.kill();
+    if (options.auto_login) {
+      return _this.login(options, callback);
     }
-    if ('auto_login' in options && !options.auto_login) {
-      if (callback) {
-        callback();
-      }
-      return;
+
+    if ('function' === typeof callback) {
+      return callback();
     }
-    self.login(options, callback);
   }
 
   function fail (status, resp) {
     var error = new LoginError(status, resp);
-    if (popup && popup.kill) {
+
+    // when failed we want the popup closed if opened
+    if (popup && 'function' === typeof popup.kill) {
       popup.kill();
     }
-    if (callback) {
+
+    if ('function' === typeof callback) {
       return callback(error);
     }
+
     throw error;
   }
 
@@ -513,9 +539,9 @@ Auth0.prototype.signup = function (options, callback) {
       if (err) {
         return fail(0, err);
       }
-      return resp.status == 200 ?
-              success() :
-              fail(resp.status, resp.err);
+
+      return resp.status == 200 ? success() :
+              fail(resp.status, resp.err || resp.error);
     });
   }
 
@@ -570,7 +596,7 @@ Auth0.prototype.changePassword = function (options, callback) {
       }
       return resp.status == 200 ?
               callback(null, resp.message) :
-              fail(resp.status, resp.err);
+              fail(resp.status, resp.err || resp.error);
     });
   }
 
@@ -616,6 +642,9 @@ Auth0.prototype._buildAuthorizationParameters = function(args, blacklist) {
   // Adds offline mode to the query
   this._configureOfflineMode(query);
 
+  // Adds client SDK information (when enabled)
+  if ( this._sendClientInfo ) query['auth0Client'] = this._getClientInfoString();
+
   // Elements to filter from query string
   blacklist = blacklist || ['popup', 'popupOptions'];
 
@@ -648,9 +677,8 @@ Auth0.prototype.login = Auth0.prototype.signin = function (options, callback) {
     options.sso = true;
   }
 
-  if (typeof options.phone !== 'undefined' ||
-      typeof options.passcode !== 'undefined') {
-    return this.loginWithPhoneNumber(options, callback);
+  if (typeof options.passcode !== 'undefined') {
+    return this.loginWithPasscode(options, callback);
   }
 
   if (typeof options.username !== 'undefined' ||
@@ -666,11 +694,20 @@ Auth0.prototype.login = Auth0.prototype.signin = function (options, callback) {
     return this.loginWithPopup(options, callback);
   }
 
-  var query = this._buildAuthorizeQueryString([
+  this._authorize(options);
+};
+
+Auth0.prototype._authorize = function(options) {
+  var qs = [
     this._getMode(options),
     options,
-    { client_id: this._clientID, redirect_uri: this._getCallbackURL(options) }
-  ]);
+    {
+      client_id: this._clientID,
+      redirect_uri: this._getCallbackURL(options)
+    }
+  ];
+
+  var query = this._buildAuthorizeQueryString(qs);
 
   var url = joinUrl('https:', this._domain, '/authorize?' + query);
 
@@ -691,8 +728,9 @@ Auth0.prototype.login = Auth0.prototype.signin = function (options, callback) {
  */
 
 Auth0.prototype._computePopupPosition = function (options) {
-  var width = options.width;
-  var height = options.height;
+  options = options || {};
+  var width = options.width || 500;
+  var height = options.height || 600;
 
   var screenX = typeof window.screenX !== 'undefined' ? window.screenX : window.screenLeft;
   var screenY = typeof window.screenY !== 'undefined' ? window.screenY : window.screenTop;
@@ -738,74 +776,84 @@ Auth0.prototype.loginPhonegap = function (options, callback) {
   }
 
   var mobileCallbackURL = joinUrl('https:', this._domain, '/mobile');
-  var self = this;
-  var query = this._buildAuthorizeQueryString([
+  var _this = this;
+  var qs = [
     this._getMode(options),
     options,
-    { client_id: this._clientID, redirect_uri: mobileCallbackURL}]);
+    {
+      client_id: this._clientID,
+      redirect_uri: mobileCallbackURL
+    }
+  ];
 
-    var popupUrl = joinUrl('https:', this._domain, '/authorize?' + query);
+  if ( this._sendClientInfo ) {
+    qs.push({ auth0Client: this._getClientInfoString() });
+  }
 
-    var popupOptions = xtend({location: 'yes'} ,
-      options.popupOptions);
+  var query = this._buildAuthorizeQueryString(qs);
 
-    // This wasn't send before so we don't send it now either
-    delete popupOptions.width;
-    delete popupOptions.height;
+  var popupUrl = joinUrl('https:', this._domain, '/authorize?' + query);
+
+  var popupOptions = xtend({location: 'yes'} ,
+    options.popupOptions);
+
+  // This wasn't send before so we don't send it now either
+  delete popupOptions.width;
+  delete popupOptions.height;
 
 
 
-    var ref = window.open(popupUrl, '_blank', stringifyPopupSettings(popupOptions));
-    var answered = false;
+  var ref = window.open(popupUrl, '_blank', stringifyPopupSettings(popupOptions));
+  var answered = false;
 
-    function errorHandler(event) {
-      if (answered) { return; }
-      callback(new Error(event.message), null, null, null, null);
+  function errorHandler(event) {
+    if (answered) { return; }
+    callback(new Error(event.message), null, null, null, null);
+    answered = true;
+    return ref.close();
+  }
+
+  function startHandler(event) {
+    if (answered) { return; }
+
+    if ( event.url && !(event.url.indexOf(mobileCallbackURL + '#') === 0 ||
+                       event.url.indexOf(mobileCallbackURL + '?') === 0)) { return; }
+
+    var result = _this.parseHash(event.url.slice(mobileCallbackURL.length));
+
+    if (!result) {
+      callback(new Error('Error parsing hash'), null, null, null, null);
       answered = true;
       return ref.close();
     }
 
-    function startHandler(event) {
-      if (answered) { return; }
-
-      if ( event.url && !(event.url.indexOf(mobileCallbackURL + '#') === 0 ||
-                         event.url.indexOf(mobileCallbackURL + '?') === 0)) { return; }
-
-      var result = self.parseHash(event.url.slice(mobileCallbackURL.length));
-
-      if (!result) {
-        callback(new Error('Error parsing hash'), null, null, null, null);
-        answered = true;
-        return ref.close();
-      }
-
-      if (result.id_token) {
-        self.getProfile(result.id_token, function (err, profile) {
-          callback(err, profile, result.id_token, result.access_token, result.state, result.refresh_token);
-        });
-        answered = true;
-        return ref.close();
-      }
-
-      // Case where we've found an error
-      callback(new Error(result.err || result.error || 'Something went wrong'), null, null, null, null);
+    if (result.id_token) {
+      _this.getProfile(result.id_token, function (err, profile) {
+        callback(err, profile, result.id_token, result.access_token, result.state, result.refresh_token);
+      });
       answered = true;
       return ref.close();
     }
 
-    function exitHandler() {
-      if (answered) { return; }
+    // Case where we've found an error
+    callback(new Error(result.err || result.error || 'Something went wrong'), null, null, null, null);
+    answered = true;
+    return ref.close();
+  }
 
-      callback(new Error('Browser window closed'), null, null, null, null);
+  function exitHandler() {
+    if (answered) { return; }
 
-      ref.removeEventListener('loaderror', errorHandler);
-      ref.removeEventListener('loadstart', startHandler);
-      ref.removeEventListener('exit', exitHandler);
-    }
+    callback(new Error('Browser window closed'), null, null, null, null);
 
-    ref.addEventListener('loaderror', errorHandler);
-    ref.addEventListener('loadstart', startHandler);
-    ref.addEventListener('exit', exitHandler);
+    ref.removeEventListener('loaderror', errorHandler);
+    ref.removeEventListener('loadstart', startHandler);
+    ref.removeEventListener('exit', exitHandler);
+  }
+
+  ref.addEventListener('loaderror', errorHandler);
+  ref.addEventListener('loadstart', startHandler);
+  ref.addEventListener('exit', exitHandler);
 
 };
 
@@ -840,46 +888,63 @@ Auth0.prototype.loginPhonegap = function (options, callback) {
  */
 
 Auth0.prototype.loginWithPopup = function(options, callback) {
-  var self = this;
+  var _this = this;
+
   if (!callback) {
     throw new Error('popup mode should receive a mandatory callback');
   }
 
-  var query = this._buildAuthorizeQueryString([
-    this._getMode(options),
-    options,
-    { client_id: this._clientID, owp: true }]);
+  var qs = [this._getMode(options), options, { client_id: this._clientID, owp: true }];
 
+  if (this._sendClientInfo) {
+    qs.push({ auth0Client: this._getClientInfoString() });
+  }
 
+  var query = this._buildAuthorizeQueryString(qs);
   var popupUrl = joinUrl('https:', this._domain, '/authorize?' + query);
 
-  var popupOptions = xtend(
-    self._computePopupPosition({
-      width: (options.popupOptions && options.popupOptions.width) || 500,
-      height: (options.popupOptions && options.popupOptions.height) || 600
-  }),
-    options.popupOptions);
+  var popupPosition = this._computePopupPosition(options.popupOptions);
+  var popupOptions = xtend(popupPosition, options.popupOptions);
 
-
-  // TODO Errors should be LoginError for consistency
   var popup = WinChan.open({
     url: popupUrl,
     relay_url: 'https://' + this._domain + '/relay.html',
     window_features: stringifyPopupSettings(popupOptions)
   }, function (err, result) {
+    // Eliminate `_current_popup` reference manually because
+    // Winchan removes `.kill()` method from window and also
+    // doesn't call `.kill()` by itself
+    _this._current_popup = null;
+
+    // Winchan always returns string errors, we wrap them inside Error objects
     if (err) {
-      // Winchan always returns string errors, we wrap them inside Error objects
-      return callback(new Error(err), null, null, null, null, null);
+      return callback(new LoginError(err), null, null, null, null, null);
     }
 
-    if (result && result.id_token) {
-      return self.getProfile(result.id_token, function (err, profile) {
+    // Handle edge case with generic error
+    if (!result) {
+      return callback(new LoginError('Something went wrong'), null, null, null, null, null);
+    }
+
+    // Handle profile retrieval from id_token and respond
+    if (result.id_token) {
+      return _this.getProfile(result.id_token, function (err, profile) {
         callback(err, profile, result.id_token, result.access_token, result.state, result.refresh_token);
       });
     }
 
-    // Case where we've found an error
-    return callback(new Error(result ? result.err : 'Something went wrong'), null, null, null, null, null);
+    // Case where the error is returned at an `err` property from the result
+    if (result.err) {
+      return callback(new LoginError(result.err.status, result.err.details || result.err), null, null, null, null, null);
+    }
+
+    // Case for sso_dbconnection_popup returning error at result.error instead of result.err
+    if (result.error) {
+      return callback(new LoginError(result.status, result.details || result), null, null, null, null, null);
+    }
+
+    // Case we couldn't match any error, we return a generic one
+    return callback(new LoginError('Something went wrong'), null, null, null, null, null);
   });
 
   popup.focus();
@@ -909,14 +974,14 @@ Auth0.prototype._shouldAuthenticateWithCordovaPlugin = function(connection) {
 
 Auth0.prototype._socialPhonegapLogin = function(options, callback) {
   var socialAuthentication = this._cordovaSocialPlugins[options.connection];
-  var self = this;
+  var _this = this;
   socialAuthentication(options.connection_scope, function(error, accessToken, extras) {
     if (error) {
       callback(error, null, null, null, null);
       return;
     }
     var loginOptions = xtend({ access_token: accessToken }, options, extras);
-    self.loginWithSocialAccessToken(loginOptions, callback);
+    _this.loginWithSocialAccessToken(loginOptions, callback);
   });
 };
 
@@ -960,15 +1025,10 @@ Auth0.prototype._phonegapFacebookLogin = function(scopes, callback) {
  * @private
  */
 Auth0.prototype.loginWithUsernamePasswordAndSSO = function (options, callback) {
-  var self = this;
-  var popupOptions = xtend(
-    self._computePopupPosition({
-      width: (options.popupOptions && options.popupOptions.width) || 500,
-      height: (options.popupOptions && options.popupOptions.height) || 600
-  }),
-    options.popupOptions);
+  var _this = this;
+  var popupPosition = this._computePopupPosition(options.popupOptions);
+  var popupOptions = xtend(popupPosition, options.popupOptions);
 
-  // TODO Refactor this with the other winchan logic for loginWithPopup.
   var popup = WinChan.open({
     url: 'https://' + this._domain + '/sso_dbconnection_popup/' + this._clientID,
     relay_url: 'https://' + this._domain + '/relay.html',
@@ -987,25 +1047,40 @@ Auth0.prototype.loginWithUsernamePasswordAndSSO = function (options, callback) {
       }
     }
   }, function (err, result) {
+    // Eliminate `_current_popup` reference manually because
+    // Winchan removes `.kill()` method from window and also
+    // doesn't call `.kill()` by itself
+    _this._current_popup = null;
+
+    // Winchan always returns string errors, we wrap them inside Error objects
     if (err) {
-      // Winchan always returns string errors, we wrap them inside Error objects
       return callback(new LoginError(err), null, null, null, null, null);
     }
 
-    if (result && result.id_token) {
-      return self.getProfile(result.id_token, function (err, profile) {
+    // Handle edge case with generic error
+    if (!result) {
+      return callback(new LoginError('Something went wrong'), null, null, null, null, null);
+    }
+
+    // Handle profile retrieval from id_token and respond
+    if (result.id_token) {
+      return _this.getProfile(result.id_token, function (err, profile) {
         callback(err, profile, result.id_token, result.access_token, result.state, result.refresh_token);
       });
     }
 
-    // Case we've found an error
-    return callback(result && result.err ?
-                    new LoginError(result.err.status,
-                                   result.err && result.err.details ?
-                                     result.err.details :
-                                     result.err) :
-                    new LoginError('Something went wrong'),
-            null, null, null, null, null);
+    // Case where the error is returned at an `err` property from the result
+    if (result.err) {
+      return callback(new LoginError(result.err.status, result.err.details || result.err), null, null, null, null, null);
+    }
+
+    // Case for sso_dbconnection_popup returning error at result.error instead of result.err
+    if (result.error) {
+      return callback(new LoginError(result.status, result.details || result), null, null, null, null, null);
+    }
+
+    // Case we couldn't match any error, we return a generic one
+    return callback(new LoginError('Something went wrong'), null, null, null, null, null);
   });
 
   popup.focus();
@@ -1020,7 +1095,7 @@ Auth0.prototype.loginWithUsernamePasswordAndSSO = function (options, callback) {
  */
 
 Auth0.prototype.loginWithResourceOwner = function (options, callback) {
-  var self = this;
+  var _this = this;
   var query = xtend(
     this._getMode(options),
     options,
@@ -1037,9 +1112,12 @@ Auth0.prototype.loginWithResourceOwner = function (options, callback) {
   var endpoint = '/oauth/ro';
   var url = joinUrl(protocol, domain, endpoint);
 
+  if ( this._sendClientInfo && this._useJSONP ) {
+    query['auth0Client'] = this._getClientInfoString();
+  }
 
   function enrichGetProfile(resp, callback) {
-    self.getProfile(resp.id_token, function (err, profile) {
+    _this.getProfile(resp.id_token, function (err, profile) {
       callback(err, profile, resp.id_token, resp.access_token, resp.state, resp.refresh_token);
     });
   }
@@ -1062,6 +1140,7 @@ Auth0.prototype.loginWithResourceOwner = function (options, callback) {
     method:  'post',
     type:    'json',
     data:    query,
+    headers: this._getClientInfoHeader(),
     crossOrigin: !same_origin(protocol, domain),
     success: function (resp) {
       enrichGetProfile(resp, callback);
@@ -1081,7 +1160,7 @@ Auth0.prototype.loginWithResourceOwner = function (options, callback) {
  */
 
 Auth0.prototype.loginWithSocialAccessToken = function (options, callback) {
-  var self = this;
+  var _this = this;
   var query = this._buildAuthorizationParameters([
       { scope: 'openid' },
       options,
@@ -1094,7 +1173,7 @@ Auth0.prototype.loginWithSocialAccessToken = function (options, callback) {
   var url = joinUrl(protocol, domain, endpoint);
 
   function enrichGetProfile(resp, callback) {
-    self.getProfile(resp.id_token, function (err, profile) {
+    _this.getProfile(resp.id_token, function (err, profile) {
       callback(err, profile, resp.id_token, resp.access_token, resp.state, resp.refresh_token);
     });
   }
@@ -1117,6 +1196,7 @@ Auth0.prototype.loginWithSocialAccessToken = function (options, callback) {
     method:  'post',
     type:    'json',
     data:    query,
+    headers: this._getClientInfoHeader(),
     crossOrigin: !same_origin(protocol, domain),
     success: function (resp) {
       enrichGetProfile(resp, callback);
@@ -1140,17 +1220,18 @@ Auth0.prototype.loginWithSocialAccessToken = function (options, callback) {
  */
 
 Auth0.prototype._buildPopupWindow = function (options, url) {
-  if (this._current_popup) {
+  if (this._current_popup && !this._current_popup.closed) {
     return this._current_popup;
   }
 
-  var popupOptions = stringifyPopupSettings(xtend(
-                          { width: 500, height: 600 },
-                          (options.popupOptions || {})));
+  url = url || 'about:blank'
 
-  this._current_popup = window.open(url || 'about:blank', 'auth0_signup_popup',popupOptions);
+  var _this = this;
+  var defaults = { width: 500, height: 600 };
+  var opts = xtend(defaults, options.popupOptions || {});
+  var popupOptions = stringifyPopupSettings(opts);
 
-  var self = this;
+  this._current_popup = window.open(url, 'auth0_signup_popup', popupOptions);
 
   if (!this._current_popup) {
     throw new Error('Popup window cannot not been created. Disable popup blocker or make sure to call Auth0 login or singup on an UI event.');
@@ -1158,7 +1239,7 @@ Auth0.prototype._buildPopupWindow = function (options, url) {
 
   this._current_popup.kill = function () {
     this.close();
-    delete self._current_popup;
+    _this._current_popup = null;
   };
 
   return this._current_popup;
@@ -1187,7 +1268,7 @@ Auth0.prototype.loginWithUsernamePassword = function (options, callback) {
     return this.loginWithResourceOwner(options, callback);
   }
 
-  var self = this;
+  var _this = this;
   var popup;
 
   // TODO We should deprecate this, really hacky and confuses people.
@@ -1229,7 +1310,7 @@ Auth0.prototype.loginWithUsernamePassword = function (options, callback) {
         var error = new LoginError(resp.status, resp.error);
         return callback(error);
       }
-      self._renderAndSubmitWSFedForm(options, resp.form);
+      _this._renderAndSubmitWSFedForm(options, resp.form);
     });
   }
 
@@ -1245,9 +1326,10 @@ Auth0.prototype.loginWithUsernamePassword = function (options, callback) {
     method:  'post',
     type:    'html',
     data:    query,
+    headers: this._getClientInfoHeader(),
     crossOrigin: !same_origin(protocol, domain),
     success: function (resp) {
-      self._renderAndSubmitWSFedForm(options, resp);
+      _this._renderAndSubmitWSFedForm(options, resp);
     },
     error: function (err) {
       if (popup && popup.kill) {
@@ -1265,31 +1347,118 @@ Auth0.prototype.loginWithUsernamePassword = function (options, callback) {
  * @param {Function} callback
  * @method loginWithPhoneNumber
  */
-Auth0.prototype.loginWithPhoneNumber = function (options, callback) {
+Auth0.prototype.loginWithPasscode = function (options, callback) {
 
-  if ('function' !== typeof callback) {
-    throw new Error('callback is required for phone number authentication');
+  if (options.email == null && options.phoneNumber == null) {
+    throw new Error('email or phoneNumber is required for authentication');
   }
 
-  if (null == options.phone) {
-    throw new Error('phone is required for authentication');
-  }
-
-  if (null == options.passcode) {
+  if (options.passcode == null) {
     throw new Error('passcode is required for authentication');
   }
 
-  var opts = xtend({
-    connection: 'sms',
-    username: options.phone,
-    password: options.passcode
-  }, opts);
+  options.connection = options.email == null ? 'sms' : 'email';
 
-  opts.sso = false;
-  delete opts.phone;
-  delete opts.passcode;
+  if (!this._shouldRedirect) {
+    options = xtend(options, {
+      username: options.email == null ? options.phoneNumber : options.email,
+      password: options.passcode,
+      sso: false
+    });
 
-  this.loginWithResourceOwner(opts, callback);
+    delete options.email;
+    delete options.phoneNumber;
+    delete options.passcode;
+
+    return this.loginWithResourceOwner(options, callback);
+  }
+
+  var verifyOptions = {connection: options.connection};
+
+  if (options.phoneNumber) {
+    options.phone_number = options.phoneNumber;
+    delete options.phoneNumber;
+
+    verifyOptions.phone_number = options.phone_number;
+  }
+
+  if (options.email) {
+    verifyOptions.email = options.email;
+  }
+
+  options.verification_code = options.passcode;
+  delete options.passcode;
+
+  verifyOptions.verification_code = options.verification_code;
+
+  var _this = this;
+  this._verify(verifyOptions, function(error) {
+    if (error) {
+      return callback(error);
+    }
+    _this._verify_redirect(options);
+  });
+};
+
+Auth0.prototype._verify = function(options, callback) {
+  var protocol = 'https:';
+  var domain = this._domain;
+  var endpoint = '/passwordless/verify';
+  var url = joinUrl(protocol, domain, endpoint);
+
+  var data = options;
+
+  if (this._useJSONP) {
+    if (this._sendClientInfo) {
+      data['auth0Client'] = this._getClientInfoString();
+    }
+
+    return jsonp(url + '?' + qs.stringify(data), jsonpOpts, function (err, resp) {
+      if (err) {
+        return callback(new Error(0 + ': ' + err.toString()));
+      }
+      // /**/ typeof __auth0jp0 === 'function' && __auth0jp0({"status":400});
+      return resp.status === 200 ? callback(null, true) : callback({status: resp.status});
+    });
+  }
+
+  return reqwest({
+    url:          same_origin(protocol, domain) ? endpoint : url,
+    method:       'post',
+    headers:      this._getClientInfoHeader(),
+    crossOrigin:  !same_origin(protocol, domain),
+    data:         data
+  })
+  .fail(function (err) {
+    try {
+      callback(JSON.parse(err.responseText));
+    } catch (e) {
+      var error = new Error(err.status + '(' + err.statusText + '): ' + err.responseText);
+      error.statusCode = err.status;
+      error.error = err.statusText;
+      error.message = err.responseText;
+      callback(error);
+    }
+  })
+  .then(function (result) {
+    callback(null, result);
+  });
+}
+
+Auth0.prototype._verify_redirect = function(options) {
+  var qs = [
+    this._getMode(options),
+    options,
+    {
+      client_id: this._clientID,
+      redirect_uri: this._getCallbackURL(options)
+    }
+  ];
+
+  var query = this._buildAuthorizeQueryString(qs);
+  var url = joinUrl('https:', this._domain, '/passwordless/verify_redirect?' + query);
+
+  this._redirect(url);
 };
 
 // TODO Document me
@@ -1523,52 +1692,89 @@ Auth0.prototype.getConnections = function (callback) {
 };
 
 /**
- * Send SMS to do passwordless authentication
+ * Send email or SMS to do passwordless authentication
  *
  * @example
- *
- *     auth0.requestSMSCode(apiToken, phoneNumber, function (err, result) {
- *       if (err) return console.log(err.message);
+ *     // To send an email
+ *     auth0.startPasswordless({email: 'foo@bar.com'}, function (err, result) {
+ *       if (err) return console.log(err.error_description);
  *       console.log(result);
  *     });
  *
- * @method requestSMSCode
+ * @example
+ *     // To send a SMS
+ *     auth0.startPasswordless({phoneNumber: '+14251112222'}, function (err, result) {
+ *       if (err) return console.log(err.error_description);
+ *       console.log(result);
+ *     });
+ *
+ * @method startPasswordless
  * @param {Object} options
  * @param {Function} callback
  */
 
-Auth0.prototype.requestSMSCode = function (options, callback) {
+Auth0.prototype.startPasswordless = function (options, callback) {
   if ('object' !== typeof options) {
     throw new Error('An options object is required');
   }
   if ('function' !== typeof callback) {
     throw new Error('A callback function is required');
   }
-
-  assert_required(options, 'apiToken');
-  assert_required(options, 'phone');
-
-  var apiToken = options.apiToken;
-  var phone = options.phone;
+  if (!options.email && !options.phoneNumber) {
+    throw new Error('An `email` or a `phoneNumber` is required.');
+  }
 
   var protocol = 'https:';
   var domain = this._domain;
-  var endpoint = '/api/v2/users';
+  var endpoint = '/passwordless/start';
   var url = joinUrl(protocol, domain, endpoint);
+
+  var data = {client_id: this._clientID};
+  if (options.email) {
+    data.email = options.email;
+    data.connection = 'email';
+    if (options.authParams) {
+      data.authParams = options.authParams;
+    }
+
+    if (!options.send || options.send === "link") {
+      if (!data.authParams) {
+        data.authParams = {};
+      }
+
+      data.authParams.redirect_uri = this._callbackURL;
+      data.authParams.response_type = this._shouldRedirect && !this._callbackOnLocationHash ?
+        "code" : "token";
+    }
+
+    if (options.send) {
+      data.send = options.send;
+    }
+  } else {
+    data.phone_number = options.phoneNumber;
+    data.connection = 'sms';
+  }
+
+  if (this._useJSONP) {
+    if (this._sendClientInfo) {
+      data['auth0Client'] = this._getClientInfoString();
+    }
+
+    return jsonp(url + '?' + qs.stringify(data), jsonpOpts, function (err, resp) {
+      if (err) {
+        return callback(new Error(0 + ': ' + err.toString()));
+      }
+      return resp.status === 200 ? callback(null, true) : callback(resp.err || resp.error);
+    });
+  }
 
   return reqwest({
     url:          same_origin(protocol, domain) ? endpoint : url,
     method:       'post',
     type:         'json',
+    headers:      this._getClientInfoHeader(),
     crossOrigin:  !same_origin(protocol, domain),
-    headers:      {
-      Authorization: 'Bearer ' + apiToken
-    },
-    data:         {
-      phone_number:   phone,
-      connection:     'sms',
-      email_verified: false
-    }
+    data:         data
   })
   .fail(function (err) {
     try {
@@ -1584,6 +1790,31 @@ Auth0.prototype.requestSMSCode = function (options, callback) {
   .then(function (result) {
     callback(null, result);
   });
+};
+
+Auth0.prototype.requestMagicLink = function(attrs, cb) {
+  return this.startPasswordless(attrs, cb);
+};
+
+Auth0.prototype.requestEmailCode = function(attrs, cb) {
+  attrs.send = "code";
+  return this.startPasswordless(attrs, cb);
+};
+
+Auth0.prototype.verifyEmailCode = function(attrs, cb) {
+  attrs.passcode = attrs.code;
+  delete attrs.code;
+  return this.login(attrs, cb);
+};
+
+Auth0.prototype.requestSMSCode = function(attrs, cb) {
+  return this.startPasswordless(attrs, cb);
+};
+
+Auth0.prototype.verifySMSCode = function(attrs, cb) {
+  attrs.passcode = attrs.code;
+  delete attrs.code;
+  return this.login(attrs, cb);
 };
 
 /**

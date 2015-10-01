@@ -188,6 +188,7 @@ module.exports = function (grunt) {
         accessKeyId:     process.env.S3_KEY,
         secretAccessKey: process.env.S3_SECRET,
         bucket:          process.env.S3_BUCKET,
+        region:          process.env.S3_REGION,
         uploadConcurrency: 5,
         params: {
           CacheControl: 'public, max-age=300'
@@ -220,25 +221,6 @@ module.exports = function (grunt) {
       release: {
         development: false
       }
-    },
-    /* Purge FASTLY cache. */
-    fastly: {
-      options: {
-        key:  process.env.FASTLY_KEY,
-        host: process.env.FASTLY_HOST
-      },
-      purge: {
-        options: {
-          urls: [
-            'js/lock-' + pkg.version + '.js',
-            'js/lock-' + pkg.version + '.min.js',
-            'js/lock-' + major_version + '.js',
-            'js/lock-' + major_version + '.min.js',
-            'js/lock-' + minor_version + '.js',
-            'js/lock-' + minor_version + '.min.js',
-          ]
-        },
-      },
     },
     http: {
       purge_js: {
@@ -299,14 +281,13 @@ module.exports = function (grunt) {
   }
 
   grunt.registerTask('css',           ['clean:css', 'less:dist', 'prefix:css', 'autoprefixer:main', 'cssmin:minify']);
-
   grunt.registerTask('js',            ['clean:js', 'browserify:debug', 'exec:uglify']);
   grunt.registerTask('build',         ['css', 'js']);
 
   grunt.registerTask('demo',          ['less:demo', 'connect:demo', 'build', 'watch']);
   grunt.registerTask('demo-https',    ['less:demo', 'connect:demo-https', 'build', 'watch']);
 
-  grunt.registerTask('dev',           ['connect:test', 'build', 'watch']);
+  grunt.registerTask('dev',           ['less:demo', 'connect:test', 'build', 'watch']);
   grunt.registerTask('integration',   ['exec:test-inception', 'exec:test-integration']);
   grunt.registerTask('phantom',       ['build', 'exec:test-inception', 'exec:test-phantom']);
 

@@ -1068,14 +1068,53 @@ var image_upload_uri;
  
  
  
-.controller('AppCtrl', function($scope, auth,store,$location, $ionicModal, $timeout,loginsFactory, $ionicLoading, $http,Post) {
+.controller('AppCtrl', function($scope, $rootScope, $ionicUser, $ionicPush, auth,store,$location, $ionicModal, $timeout,loginsFactory, $ionicLoading, $http,Post) {
 	
 
 	
+	$http.defaults.headers.common['Access-Control-Allow-Origin'] = '*';
+ var user = $ionicUser.get();
+ if(!user.user_id) {
+ // Set your user_id here, or generate a random one.
+ user.user_id = $ionicUser.generateGUID();
+ };
+	 
+ // Metadata
+ angular.extend(user, {
+ name: 'Lokal',
+ bio: 'Lokal Offers'
+ });
+ 
+ // Identify your user with the Ionic User Service
+ $ionicUser.identify(user).then(function(){
+ $scope.identified = true;
+ console.log('Identified user ' + user.name + '\n ID ' + user.user_id);
+ })
+
 	
-	
-	  
-    //$scope.modal.show();
+ console.log('Ionic Push: Registering user');
+ 
+ // Register with the Ionic Push service.  All parameters are optional.
+ $ionicPush.register({
+   canShowAlert: true, //Can pushes show an alert on your screen?
+   canSetBadge: true, //Can pushes update app icon badges?
+   canPlaySound: true, //Can notifications play a sound?
+   canRunActionsOnWake: true, //Can run actions outside the app,
+   onNotification: function(notification) {
+     // Handle new push notifications here
+     return true;
+   }
+ })
+
+
+$rootScope.$on('$cordovaPush:tokenReceived', function(event, data) {
+  alert("Successfully registered token " + data.token);
+  console.log('Ionic Push: Got token ', data.token, data.platform);
+  $scope.token = data.token;
+})
+   
+
+   //$scope.modal.show();
 	
 	 auth.signin({
       authParams: {

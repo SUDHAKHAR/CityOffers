@@ -1,4 +1,149 @@
-## [6.4.1] - 2015-05-18
+## [6.7.2] - 2015-09-26
+
+### Fixed
+
+- [] Properly set response_type in requestMagicLink (`Gabriel Andretta`)
+  https://github.com/auth0/auth0.js/commit/8895643c1e9b5ce54c69501620ce3ae1d1801404
+
+## [6.7.1] - 2015-09-26
+
+### Fixed
+
+- [] Consider callback options when sending magiclink (`Gabriel Andretta`)
+  https://github.com/auth0/auth0.js/commit/e7ec405f001618791f958c3ed37ecf15cff3aaa1
+
+## [6.7.0] - 2015-09-08
+
+### Fixed
+
+- [] Merge pull request #110 from auth0/passwordless-redirect (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/df02ebc7300080c0e470fa94a37dbcffc0505e7d
+- [] New passwordless API (`Gabriel Andretta`)
+  https://github.com/auth0/auth0.js/commit/f4cdf13f5669586bab4776afc7ab78282c1ebc8e
+- [] Fix call to requestMagicLink in README (`Gabriel Andretta`)
+  https://github.com/auth0/auth0.js/commit/12988494c8733af41a30011f6040930c21fb70a7
+- [] Doc in README new passwordless API (`Gabriel Andretta`)
+  https://github.com/auth0/auth0.js/commit/16ac0bc003bd11b5bb9bc056c75e3ef1b034bed7
+- [] Fix tests (`Gabriel Andretta`)
+  https://github.com/auth0/auth0.js/commit/47e6380e37dbebcc1e52c1318dc2ffa78ed0be9a
+- [] WIP to allow redirect mode for passwordless login (`Gabriel Andretta`)
+  https://github.com/auth0/auth0.js/commit/6a6db948ce8bba6e052e47cc99f319bfdc20aaab
+
+## [6.6.4] - 2015-09-07
+
+### Fixed
+
+- [] remove packageify - closes #99 (`José F. Romaniello`)
+  https://github.com/auth0/auth0.js/commit/39acefc412d48f438f278197bb75e52e188a5608
+
+## [6.6.3] - 2015-09-03
+
+### Fixed
+
+- [] create a new popup window if the current one is closed (`José F. Romaniello`)
+  https://github.com/auth0/auth0.js/commit/9dd323e344957b5ec3b3f0fa8d0f83aaad747aaf
+
+## [6.6.2] - 2015-09-02
+
+### Fixed
+
+- [] Updated tests to run faster in latest 3 versions of browsers (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/7ac1ffd2327c89e386e28e8a10b17d0e961de2cb
+- [] Merge pull request #107 from auth0/fix/signup-popup (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/fd73f249181508ab2153d5f64929fba76faf56b5
+- [] Some codestyle changes (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/0f9cf8415460acddd9936e30a1e044c592d29c5e
+- [] Little refactor for popup opener when auto_login mode on signup (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/065c9e6cb2f950545c11bbcd8bd1d7b0004380ae
+
+## [6.6.1] - 2015-08-28
+
+### Fixed
+
+- [] Update example for signup (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/8b060242d63fd6a77d24a5456698ddbaf69e1a3a
+- [] Fix issue with double opened popups when doing signup (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/7b9c1e6ee415fe4a53b1393147e97a6f5d99dbd5
+- [] Update example so it doesn't make your eyes bleed (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/f747483286608679bfd80b3cbc7d790deebd04c6
+- [] Fix gruntfile and example html (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/aa6528135cdaff6812ff8df6d13f70b61e106849
+- [] Fix purge_cdn command (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/35d8d9e9ba3eea6a520c39b96536dffd48faa1d9
+
+## [6.6.0] - 2015-08-28
+
+### Fixed
+
+- [] Remove force of status from winchan response handlers (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/ca696f063198fde169f144bd6ed3eebd8d354207
+- [] Add 401 status inside LoginError when code is `unauthorized` (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/7cfbf6e0fd58c5a226658762711965d469264cb6
+- [] Fix bump version script (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/37a463d8ab5b68cef6bb0a8ac1fbc99572f20750
+- [] Highly improve error handling for winchan.open on loginWithPopup (social conns) (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/5950b9206c54c3e02ec9a3f29664d9233dc684d0
+- [] More clear handling. And adding 401 status when unauthorized (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/fda60bb60422e1a377f4a0eda9affebbb6eec235
+- [] Highly improve winchan errors handling. Consider also cases from rules errors not considered before (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/b4b7a14e1bf421736bdf10a68e060d9036a45eb0
+- [] Fix purge script (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/ce67919ebdcd604c63999e350248fa60513b0c41
+
+## [6.5.1] - 2015-08-04
+
+### Fixed
+
+- [] Fix some case where when handling with JSONP (IE9 by default) error handling will fail expecting other variable for the error (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/5dd14cd487a0483da2f16532ea9c3e8d192fdb4b
+- [] Fix package.json version for sinon (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/46c8b063bf36a4d76df912b4a08d82ee3d1c1aa3
+- [] Fix tests (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/8602777a81868d731ecd77114ce38ce841ea8ec5
+- [] Merge pull request #104 from auth0/fix-signup-jsonp-error (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/82413689f4631bbc10e3d4df8525d3ef1bf27797
+- [] the other way (`German Lena`)
+  https://github.com/auth0/auth0.js/commit/7c861c0e96e19f3923b94f6126fcdb35d3ded480
+- [] lets support both err and error (`German Lena`)
+  https://github.com/auth0/auth0.js/commit/0a1bb94e9908ab0e2221c2a9fdc11a793b1895e2
+- [] fix jsonp error response for signup: wrong field name (`German Lena`)
+  https://github.com/auth0/auth0.js/commit/c6f33ea991a2faff897140e8f305a646633b369b
+- [] Merge pull request #102 from auth0/add-popup-mode-warning-in-README (`Matias Woloski`)
+  https://github.com/auth0/auth0.js/commit/0cfda913b66ed66c3dbd6859c22f62a74113d3eb
+- [] Add Popup Mode warning in README (`twistedstream`)
+  https://github.com/auth0/auth0.js/commit/48cf137e3ec26592edda4de51e5b9e50caf8ead9
+- [] Merge pull request #101 from auth0/enhance-processing-the-callback-section-in-README (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/4588149a91ceebef6d5085c3cd6b8bf5402c2431
+- [] More tweaks (`twistedstream`)
+  https://github.com/auth0/auth0.js/commit/de1216b122111c1f24095b4143372760d1affdbc
+- [] Merge branch 'master' into enhance-processing-the-callback-section-in-README (`twistedstream`)
+  https://github.com/auth0/auth0.js/commit/242491ca06242885cdb4a4f1a51146a1f04cea17
+- [] Cleanup of new Processing the Callback content (`twistedstream`)
+  https://github.com/auth0/auth0.js/commit/d712f2215da75d4610c029549bb10508f26b69b4
+- [] add region to gruntfile (`José F. Romaniello`)
+  https://github.com/auth0/auth0.js/commit/7fb9ae4efa6dcf206fa2e0687c6b0150dbd21306
+- [] First draft of more detailed description (`twistedstream`)
+  https://github.com/auth0/auth0.js/commit/caad175a494594d8aa2171e8fb28effea05d4d17
+- [] Update sms code example to use `login` (`Gabriel Andretta`)
+  https://github.com/auth0/auth0.js/commit/fe1d13d41d1b46553564d00e61c10034b52ac5f1
+- [] Merge pull request #100 from auth0/examples-tasks (`Cristian Douce`)
+  https://github.com/auth0/auth0.js/commit/0db5f69bf9166fcb34b44cdc5afdbc72cef859ba
+- [] Move build to the beginning in examples tasks (`Gabriel Andretta`)
+  https://github.com/auth0/auth0.js/commit/2a441ef92f4d9c129aae05c1d727811daf8e5ee9
+- [] Correct sso default value in README (`Rodrigo López Dato`)
+  https://github.com/auth0/auth0.js/commit/5f29bce47ef1af297ff490932078b100b51c9535
+- [] Update CHANGELOG.md (`Alberto Pose`)
+  https://github.com/auth0/auth0.js/commit/e8e8a7e15aa8d404b0955edfe7b08de918dad333
+
+## [6.5.0] - 2015-08-04
+
+### Added
+
+- Add `.startPasswordless()` method and warn deprecation of `.requestSMSCode()` (@gnandretta)
+  https://github.com/auth0/auth0.js/commit/cdc4b2982ab0f22bd27fa0beb4a9657517f0117d
+- Add client version and lib name on authentication requests (@benschwarz)
+
+## [6.4.2] - 2015-05-18
 
 ### Fixed
 
